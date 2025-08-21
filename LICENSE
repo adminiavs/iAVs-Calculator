@@ -1,4 +1,4 @@
-MIT License
+iAVs Attribution License
 
 Copyright (c) 2025 Barry Taylor
 
@@ -9,8 +9,21 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+2. Any use, distribution, or derivative work of this Software must prominently
+   display attribution to "iAVs" and include a clearly visible link to 
+   https://iavs.info/ in any user interface, documentation, or promotional 
+   materials associated with the Software or its use.
+
+3. The attribution must be in the form: "Powered by iAVs - https://iavs.info/"
+   or equivalent clear attribution that credits iAVs and provides the link.
+
+4. The attribution requirement applies to all forms of distribution, including
+   but not limited to: web applications, mobile applications, printed materials,
+   academic publications, commercial products, and any other medium where the
+   Software or its derivatives are used or referenced.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
