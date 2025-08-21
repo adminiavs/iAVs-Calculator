@@ -33,17 +33,17 @@ const unitConversions = {
 };
 
 const DEFAULT_TANK_DIMENSIONS: TankDimensions = {
-  length: 1000,
-  width: 1200,
-  depth: 1200,
-  cornerRadius: 320,
+  length: 1150,  // 1.15m in mm
+  width: 1400,   // 1.4m in mm
+  depth: 1000,   // 1.0m in mm
+  cornerRadius: 570,  // 0.57m in mm
   curveDepth: 100,
 };
 
 const DEFAULT_BIOFILTER_DIMENSIONS: BiofilterDimensions = {
-  width: 1200,
-  length: 5000,
-  shallowDepth: 300,
+  width: 1200,   // 1.2m in mm
+  length: 5000,  // 5.0m in mm
+  shallowDepth: 300,  // 0.3m in mm
   freeboard: 0,
   slope: 2,
 };
@@ -429,11 +429,11 @@ export default function App(): React.ReactNode {
     const maxRadius = shortestSide / 2;
     if (r > maxRadius) return 'red';
     
-    // Yellow (CAUTION): Corner radius too small (less than 5% of shortest side)
-    const yellowThreshold = shortestSide * 0.05;
+    // Yellow (CAUTION): Corner radius too small (less than 20% of shortest side)
+    const yellowThreshold = shortestSide * 0.2;
     if (r < yellowThreshold) return 'yellow';
     
-    // Optimal range: Between 5% and 50% of shortest side (including perfect circle)
+    // Optimal range: Between 20% and 50% of shortest side (including perfect circle)
     return 'cyan';
   }, [dimensions.cornerRadius, dimensions.length, dimensions.width]);
   
@@ -465,7 +465,7 @@ export default function App(): React.ReactNode {
 
   const optimalRadiusTooltip = useMemo(() => {
     const shortestSide = Math.min(dimensions.length, dimensions.width);
-    const yellowThreshold = shortestSide * 0.05;
+    const yellowThreshold = shortestSide * 0.2;
     const maxRadius = shortestSide / 2;
     
     const converter = unitConversions[unit].fromMM;
@@ -560,7 +560,7 @@ export default function App(): React.ReactNode {
       if (cornerRadiusColor === 'red') {
         allWarnings.push(`Error: Corner radius cannot exceed half of the shortest side. Adjust radius or tank dimensions. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) exceeds the maximum allowed value of ${(maxRadius / 1000).toFixed(2)}m.`);
       } else {
-        allWarnings.push(`Caution: Very small corner radius may reduce structural stability or make lining difficult. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) is less than 5% of the shortest side.`);
+        allWarnings.push(`Caution: Very small corner radius may reduce structural stability or make lining difficult. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) is less than 20% of the shortest side.`);
       }
     }
     if (aspectRatioColor !== 'cyan') {
