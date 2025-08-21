@@ -235,6 +235,171 @@ The calculator includes comprehensive validation to ensure:
 - Calculations are mathematically sound
 - Results are physically achievable
 
+## Technical Specifications & Formulas
+
+### Warning System Overview
+
+The calculator implements a comprehensive warning system with three levels:
+- **🟢 Cyan (Optimal)**: Design parameters within ideal ranges
+- **🟡 Yellow (Caution)**: Parameters approaching limits or requiring attention
+- **🔴 Red (Warning)**: Parameters outside safe/functional ranges
+
+### Tank Design Warnings
+
+#### 1. Aspect Ratio Warnings
+**Formula**: `Aspect Ratio = max(Length, Width) / min(Length, Width)`
+
+- **🟢 Cyan (Optimal)**: 1.2 ≤ AR ≤ 3.0
+  - Sweet spot for rectangular tanks with good circulation
+- **🟡 Yellow (Caution)**: AR < 1.2 (too square) OR AR > 3.0 (too elongated)
+  - Square tanks may be less space-efficient
+  - Elongated tanks may have circulation issues
+- **🔴 Red (Warning)**: AR > 5.0
+  - Highly impractical design with severe circulation and structural challenges
+
+#### 2. Depth Warnings
+**Formula**: Based on Shortest Horizontal Dimension (SHD) = min(Length, Width)
+
+- **🟢 Cyan (Optimal)**: Depth ≤ SHD
+  - Depth less than or equal to shortest horizontal dimension
+- **🟡 Yellow (Caution)**: Depth > SHD
+  - Depth exceeds shortest horizontal dimension, indicating increasing structural demands
+- **🔴 Red (Warning)**: Depth > 1.5 × SHD
+  - Critical point where depth is 50% greater than shortest horizontal dimension
+
+#### 3. Corner Radius Warnings
+**Formula**: Based on Shortest Horizontal Dimension (SHD) = min(Length, Width)
+
+- **🟢 Cyan (Optimal)**: 0.05 × SHD ≤ Radius ≤ 0.5 × SHD
+  - Includes perfect circles (Radius = 0.5 × SHD) as optimal designs
+- **🟡 Yellow (Caution)**: Radius < 0.05 × SHD
+  - Very small radii create sharp corners with structural weakness
+- **🔴 Red (Warning)**: Radius > 0.5 × SHD
+  - Geometrically impossible - overlapping circles
+
+#### 4. Bottom Profile Warnings
+**Formula**: Curve Depth Percentage (0-100%)
+
+- **🟢 Cyan (Optimal)**: 75% ≤ Curve ≤ 100%
+  - Deep catenary provides best stability and waste collection
+- **🟡 Yellow (Caution)**: 25% < Curve < 75%
+  - Moderate curve may impede waste collection
+- **🔴 Red (Warning)**: Curve ≤ 25%
+  - Flat bottom may impede waste collection and reduce stability
+
+### Biofilter Design Warnings
+
+#### 1. Volume Ratio Warnings
+**Formula**: `Biofilter Volume / Tank Volume`
+
+- **🟢 Cyan (Optimal)**: Ratio = 2.0 (1:2 ratio)
+  - Scientifically validated optimal ratio
+- **🟡 Yellow (Caution)**: 0.9 ≤ Ratio < 2.0
+  - Biofilter undersized, may not support fish load
+- **🔴 Red (Warning)**: Ratio < 0.3
+  - Critically undersized biofilter
+
+#### 2. Surface Area Warnings
+**Formula**: `Biofilter Surface Area / Tank Volume (m³)`
+
+- **🟢 Cyan (Optimal)**: Ratio = 6.0 (1:6 ratio)
+  - Scientifically validated optimal ratio
+- **🟡 Yellow (Caution)**: 4.8 ≤ Ratio < 6.0 OR Ratio > 9.0
+  - Surface area outside optimal range
+- **🔴 Red (Warning)**: Ratio < 4.8
+  - Critically undersized surface area
+
+### Core Calculation Formulas
+
+#### Tank Volume Calculation
+```typescript
+// Top surface area (rounded rectangle)
+topSurfaceArea = (length × width) - (4 × radius²) + (π × radius²)
+
+// Volume with catenary curve correction
+curveCorrectionFactor = 1 - (curveDepth / 100) × (1 - 0.75)
+volume = topSurfaceArea × depth × curveCorrectionFactor
+```
+
+#### Biofilter Calculations
+```typescript
+// Surface area
+surfaceArea = width × length
+
+// Depth calculations
+slopeDepthIncrease = length × (slope / 100)
+deepDepth = shallowDepth + slopeDepthIncrease
+
+// Sand volume (average depth)
+averageSandDepth = (shallowDepth + deepDepth) / 2
+sandVolume = surfaceArea × averageSandDepth
+
+// Sand weight (1600 kg/m³ density)
+sandWeight = sandVolume × 1.6
+```
+
+#### Fish Stocking Calculations
+```typescript
+// Base stocking rate
+baseStockingRate = 80-100 fingerlings per 1000 liters
+
+// Adjusted for biofilter efficiency
+if (biofilterRatio < 1.0) {
+  adjustmentFactor = biofilterRatio
+  adjustedStocking = baseStockingRate × adjustmentFactor
+}
+```
+
+#### Liner Calculations
+```typescript
+// Tank liner (with overlap)
+tankLinerLength = length + (2 × depth) + overlap
+tankLinerWidth = width + (2 × depth) + overlap
+
+// Biofilter liner
+biofilterLinerLength = length + (2 × totalHeight) + overlap
+biofilterLinerWidth = width + (2 × totalHeight) + overlap
+```
+
+#### Pump Specifications
+```typescript
+// Flow rate range
+minFlowRate = tankVolume × 0.5  // 50% turnover per hour
+maxFlowRate = tankVolume × 2.0  // 200% turnover per hour
+
+// Head height
+headHeight = biofilterHeight + elevationDifference
+```
+
+### Unit Conversion System
+
+All internal calculations use millimeters for precision:
+```typescript
+// Conversion factors
+const conversions = {
+  m: { toMM: (v) => v * 1000, fromMM: (v) => v / 1000 },
+  cm: { toMM: (v) => v * 10, fromMM: (v) => v / 10 },
+  in: { toMM: (v) => v * 25.4, fromMM: (v) => v / 25.4 },
+  ft: { toMM: (v) => v * 304.8, fromMM: (v) => v / 304.8 }
+}
+```
+
+### Validation Rules
+
+1. **Minimum Tank Volume**: 500 liters for fish welfare
+2. **Minimum Depth**: 60cm for fish welfare
+3. **Maximum Biofilter Length**: 6m (requires additional drainage)
+4. **Corner Radius Limit**: Cannot exceed half of shortest side
+5. **Aspect Ratio Limits**: 1.2:1 to 3.0:1 for optimal design
+6. **Depth-to-Side Ratio**: 0.75:1 to 1.5:1 for structural stability
+
+### Performance Considerations
+
+- **Real-time Updates**: All calculations update immediately on parameter changes
+- **Precision**: Internal calculations use millimeters, display uses user-selected units
+- **Validation**: Comprehensive checks prevent physically impossible configurations
+- **Visual Feedback**: Color-coded indicators provide immediate design guidance
+
 ## Contributing
 
 This calculator is designed to help the iAVs community build better systems. Contributions are welcome! Please ensure any changes maintain the scientific accuracy of the calculations and follow the established coding standards.

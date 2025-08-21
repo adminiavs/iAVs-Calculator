@@ -397,6 +397,22 @@ export default function App(): React.ReactNode {
     const maxRadiusMm = minSideMm / 2;
     return conversions[unit].fromMM(maxRadiusMm);
   }, [dimensions.width, dimensions.length, unit]);
+
+  const aspectRatioColor = useMemo(() => {
+    const { length, width } = dimensions;
+    if (length === 0 || width === 0) return 'cyan';
+    
+    const aspectRatio = Math.max(length, width) / Math.min(length, width);
+    
+    // Red (Warning): Extremely elongated/impractical (AR > 5.0)
+    if (aspectRatio > 5.0) return 'red';
+    
+    // Yellow (Caution): Too square (AR < 1.2) or too elongated (AR > 3.0)
+    if (aspectRatio < 1.2 || aspectRatio > 3.0) return 'yellow';
+    
+    // Optimal range: 1.2 <= AR <= 3.0
+    return 'cyan';
+  }, [dimensions.length, dimensions.width]);
   
   const curveDepthColor = useMemo(() => {
     if (dimensions.curveDepth <= 25) return 'red';
@@ -406,11 +422,18 @@ export default function App(): React.ReactNode {
 
   const cornerRadiusColor = useMemo(() => {
     const r = dimensions.cornerRadius;
-    const b = Math.min(dimensions.length, dimensions.width);
-    if (b === 0) return 'cyan';
-    const ratio = r / b;
-    if (ratio < 0.1 || ratio > 0.5) return 'red';
-    if (ratio < 0.2 || ratio > 0.4) return 'yellow';
+    const shortestSide = Math.min(dimensions.length, dimensions.width);
+    if (shortestSide === 0) return 'cyan';
+    
+    // Red (ERROR/IMPOSSIBLE GEOMETRY): Corner radius cannot exceed min(Length, Width) / 2
+    const maxRadius = shortestSide / 2;
+    if (r > maxRadius) return 'red';
+    
+    // Yellow (CAUTION): Corner radius too small (less than 5% of shortest side)
+    const yellowThreshold = shortestSide * 0.05;
+    if (r < yellowThreshold) return 'yellow';
+    
+    // Optimal range: Between 5% and 50% of shortest side (including perfect circle)
     return 'cyan';
   }, [dimensions.cornerRadius, dimensions.length, dimensions.width]);
   
@@ -441,21 +464,26 @@ export default function App(): React.ReactNode {
   }, [dimensions.length, dimensions.width, dimensions.depth]);
 
   const optimalRadiusTooltip = useMemo(() => {
-    const b = Math.min(dimensions.length, dimensions.width);
-    const minRadiusMm = b * 0.2;
-    const maxRadiusMm = b * 0.4;
+    const shortestSide = Math.min(dimensions.length, dimensions.width);
+    const yellowThreshold = shortestSide * 0.05;
+    const maxRadius = shortestSide / 2;
+    
     const converter = unitConversions[unit].fromMM;
-    const minRadiusDisplay = converter(minRadiusMm);
-    const maxRadiusDisplay = converter(maxRadiusMm);
+    const yellowDisplay = converter(yellowThreshold);
+    const maxDisplay = converter(maxRadius);
     const precision = (unit === 'm' || unit === 'ft') ? 2 : 1;
 
     return (
       <div className="text-left">
-        <p className="font-bold text-white mb-1">Optimal Radius Tip</p>
-        <p>
-          For best results, aim for a radius between{' '}
-          <span className="font-bold text-cyan-300">{minRadiusDisplay.toFixed(precision)} {unit}</span> and{' '}
-          <span className="font-bold text-cyan-300">{maxRadiusDisplay.toFixed(precision)} {unit}</span>.
+        <p className="font-bold text-white mb-1">Corner Radius Guidelines</p>
+        <p className="mb-1">Based on your tank's shortest side ({converter(shortestSide).toFixed(precision)} {unit}):</p>
+        <ul className="text-sm space-y-1">
+          <li><span className="text-cyan-300">● Cyan:</span> Radius ≥ {yellowDisplay.toFixed(precision)} {unit} (optimal)</li>
+          <li><span className="text-yellow-300">● Yellow:</span> Radius &lt; {yellowDisplay.toFixed(precision)} {unit} (caution)</li>
+          <li><span className="text-red-300">● Red:</span> Radius &gt; {maxDisplay.toFixed(precision)} {unit} (impossible)</li>
+        </ul>
+        <p className="text-xs text-slate-400 mt-2">
+          Optimal range includes perfect circles. Very small radii may reduce structural stability.
         </p>
       </div>
     );
@@ -485,6 +513,26 @@ export default function App(): React.ReactNode {
       </div>
     );
   }, [dimensions.length, dimensions.width, unit]);
+
+  const aspectRatioTooltip = useMemo(() => {
+    const { length, width } = dimensions;
+    const aspectRatio = length === 0 || width === 0 ? 1 : Math.max(length, width) / Math.min(length, width);
+    
+    return (
+      <div className="text-left">
+        <p className="font-bold text-white mb-1">Aspect Ratio Guidelines</p>
+        <p className="mb-2">Current aspect ratio: <span className="font-bold text-cyan-300">{aspectRatio.toFixed(2)}:1</span></p>
+        <ul className="text-sm space-y-1">
+          <li><span className="text-cyan-300">● Cyan:</span> 1.2:1 to 3.0:1 (optimal rectangular)</li>
+          <li><span className="text-yellow-300">● Yellow:</span> &lt; 1.2:1 (too square) or &gt; 3.0:1 (too elongated)</li>
+          <li><span className="text-red-300">● Red:</span> &gt; 5.0:1 (highly impractical)</li>
+        </ul>
+        <p className="text-xs text-slate-400 mt-2">
+          Optimal rectangular tanks provide better circulation and space efficiency.
+        </p>
+      </div>
+    );
+  }, [dimensions.length, dimensions.width]);
   
   const warnings = useMemo(() => {
     const allWarnings: string[] = [];
@@ -506,7 +554,25 @@ export default function App(): React.ReactNode {
       allWarnings.push('A depth of less than 60cm is not recommended for fish welfare.');
     }
     if (cornerRadiusColor !== 'cyan') {
-      allWarnings.push('The Corner Radius is sub-optimal. The ideal radius is 20-40% of the shortest side for good water circulation.');
+      const shortestSide = Math.min(dimensions.length, dimensions.width);
+      const maxRadius = shortestSide / 2;
+      
+      if (cornerRadiusColor === 'red') {
+        allWarnings.push(`Error: Corner radius cannot exceed half of the shortest side. Adjust radius or tank dimensions. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) exceeds the maximum allowed value of ${(maxRadius / 1000).toFixed(2)}m.`);
+      } else {
+        allWarnings.push(`Caution: Very small corner radius may reduce structural stability or make lining difficult. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) is less than 5% of the shortest side.`);
+      }
+    }
+    if (aspectRatioColor !== 'cyan') {
+      const aspectRatio = Math.max(dimensions.length, dimensions.width) / Math.min(dimensions.length, dimensions.width);
+      
+      if (aspectRatioColor === 'red') {
+        allWarnings.push(`Warning: This aspect ratio (${aspectRatio.toFixed(2)}:1) is highly impractical and may lead to severe circulation, aeration, and structural issues. Please adjust dimensions.`);
+      } else if (aspectRatio < 1.2) {
+        allWarnings.push(`Consider a more rectangular shape for optimal design. Current aspect ratio (${aspectRatio.toFixed(2)}:1) is close to square. Aim for Length-to-Width ratio > 1.2.`);
+      } else {
+        allWarnings.push(`Caution: Very elongated tanks may have circulation or structural challenges. Current aspect ratio (${aspectRatio.toFixed(2)}:1) exceeds 3.0:1. Consider a wider design.`);
+      }
     }
     if (biofilterCalculations.sandVolumeColor === 'red') {
       allWarnings.push('The biofilter sand volume is critically low (less than 30% of target). This will not support the fish load.');
@@ -528,7 +594,7 @@ export default function App(): React.ReactNode {
       allWarnings.push('The recommended stocking rate has been reduced due to an undersized biofilter.');
     }
     return allWarnings;
-  }, [curveDepthColor, maxDepthColor, cornerRadiusColor, biofilterCalculations, biofilterDimensions.length, result.volumeLiters, fishStockingCalculation.adjustmentMessage, dimensions.depth]);
+  }, [curveDepthColor, maxDepthColor, cornerRadiusColor, aspectRatioColor, biofilterCalculations, biofilterDimensions.length, result.volumeLiters, fishStockingCalculation.adjustmentMessage, dimensions.depth]);
 
   const handleSaveSummaryPdf = async () => {
     setIsSavingPdf(true);
@@ -694,8 +760,30 @@ export default function App(): React.ReactNode {
                   </div>
 
                   <div className="space-y-6">
-                    <InputSlider label="Length" value={displayDimensions.length} onChange={(v) => handleDimensionChange('length', v)} min={sliderConfig.dim.min} max={sliderConfig.dim.max} step={sliderConfig.dim.step} sliderStep={sliderConfig.dim.sliderStep} unit={unit} />
-                    <InputSlider label="Width" value={displayDimensions.width} onChange={(v) => handleDimensionChange('width', v)} min={sliderConfig.dim.min} max={sliderConfig.dim.max} step={sliderConfig.dim.step} sliderStep={sliderConfig.dim.sliderStep} unit={unit} />
+                    <InputSlider 
+                      label="Length" 
+                      value={displayDimensions.length} 
+                      onChange={(v) => handleDimensionChange('length', v)} 
+                      min={sliderConfig.dim.min} 
+                      max={sliderConfig.dim.max} 
+                      step={sliderConfig.dim.step} 
+                      sliderStep={sliderConfig.dim.sliderStep} 
+                      unit={unit}
+                      accentColor={aspectRatioColor}
+                      tooltip={aspectRatioTooltip}
+                    />
+                    <InputSlider 
+                      label="Width" 
+                      value={displayDimensions.width} 
+                      onChange={(v) => handleDimensionChange('width', v)} 
+                      min={sliderConfig.dim.min} 
+                      max={sliderConfig.dim.max} 
+                      step={sliderConfig.dim.step} 
+                      sliderStep={sliderConfig.dim.sliderStep} 
+                      unit={unit}
+                      accentColor={aspectRatioColor}
+                      tooltip={aspectRatioTooltip}
+                    />
                     <InputSlider 
                       label="Max Depth" 
                       value={displayDimensions.depth} 
