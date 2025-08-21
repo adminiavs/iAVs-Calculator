@@ -31,6 +31,7 @@ interface BioFilterPageProps {
     sandWeightKg: number;
     totalBiofilterVolumeLiters: number;
   };
+  tankVolumeLiters: number;
 }
 
 const unitConversions = {
@@ -40,7 +41,7 @@ const unitConversions = {
   ft: { fromMM: (v: number) => v / 304.8 },
 };
 
-export default function BioFilterPage({ dimensions, displayDimensions, onChange, unit, sliderConfig, calculations }: BioFilterPageProps): React.ReactNode {
+export default function BioFilterPage({ dimensions, displayDimensions, onChange, unit, sliderConfig, calculations, tankVolumeLiters }: BioFilterPageProps): React.ReactNode {
   
   const derivedDisplayValues = useMemo(() => {
     const { shallowDepth, length, slope } = dimensions;
@@ -59,6 +60,28 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
 
   const showLengthWarning = (dimensions.length / 1000) > 6; // Check in meters
   
+  // Volume comparison calculations
+  const volumeComparison = useMemo(() => {
+    const targetBiofilterVolume = tankVolumeLiters * 2; // Target is 2x tank volume
+    const actualBiofilterVolume = calculations.totalBiofilterVolumeLiters;
+    
+    const percentageDiff = Math.abs((actualBiofilterVolume - targetBiofilterVolume) / targetBiofilterVolume) * 100;
+    
+    let actualVolumeColor: 'red' | 'yellow' | 'cyan' = 'cyan';
+    if (percentageDiff >= 30) {
+      actualVolumeColor = 'red';
+    } else if (percentageDiff >= 10) {
+      actualVolumeColor = 'yellow';
+    }
+    
+    return {
+      targetVolume: targetBiofilterVolume,
+      actualVolume: actualBiofilterVolume,
+      actualVolumeColor,
+      percentageDiff
+    };
+  }, [tankVolumeLiters, calculations.totalBiofilterVolumeLiters]);
+  
   const sandWeightTooltip = (
     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-slate-900 ring-1 ring-slate-600 rounded-lg shadow-lg text-sm text-left text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
         <p>This is an estimate based on an average dry sand density (1600 kg/m³). The actual weight can vary based on moisture and sand type. Please confirm with your supplier and consider purchasing 5-10% extra.</p>
@@ -67,7 +90,31 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
   );
 
   return (
-    <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="max-w-7xl mx-auto flex flex-col gap-8">
+      {/* Volume Comparison Box */}
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10">
+        <h2 className="text-2xl font-semibold text-white mb-6 border-b border-slate-700 pb-4">BioFilter Volume Analysis</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <StatCard
+            title="Target BioFilter Volume"
+            value={volumeComparison.targetVolume}
+            unit="Liters"
+            precision={0}
+            tooltip="Target biofilter volume is 2x the tank volume for optimal performance"
+          />
+          <StatCard
+            title="Actual BioFilter Volume"
+            value={volumeComparison.actualVolume}
+            unit="Liters"
+            precision={0}
+            accentColor={volumeComparison.actualVolumeColor}
+            tooltip={`Current biofilter volume differs by ${volumeComparison.percentageDiff.toFixed(1)}% from target. Cyan is optimal (±10%), yellow is acceptable (10-30% difference), red indicates significant deviation (>30%)`}
+          />
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Left Column: Configuration & Diagram */}
       <div className="flex flex-col gap-8">
         <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 flex flex-col gap-8">
@@ -135,5 +182,6 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
         )}
       </div>
     </main>
+    </div>
   );
 }

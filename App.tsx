@@ -751,6 +751,7 @@ export default function App(): React.ReactNode {
             unit={unit}
             sliderConfig={biofilterSliderConfig}
             calculations={biofilterCalculations}
+            tankVolumeLiters={result.volumeLiters}
           />
         )}
 
