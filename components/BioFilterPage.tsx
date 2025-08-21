@@ -92,23 +92,39 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-8">
       {/* Volume Comparison Box */}
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10">
-        <h2 className="text-2xl font-semibold text-white mb-6 border-b border-slate-700 pb-4">BioFilter Volume Analysis</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-slate-800 rounded-2xl p-4 shadow-2xl ring-1 ring-white/10">
+        <h2 className="text-xl font-semibold text-white mb-4">BioFilter Volume Analysis</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <StatCard
-            title="Target BioFilter Volume"
+            title="Target Volume"
             value={volumeComparison.targetVolume}
-            unit="Liters"
+            unit="L"
             precision={0}
-            tooltip="Target biofilter volume is 2x the tank volume for optimal performance"
+            tooltip={
+              <div>
+                <p className="font-semibold text-white mb-2">Target BioFilter Volume</p>
+                <p>Calculated as <strong>2× tank volume</strong> based on scientifically validated iAVs ratios.</p>
+                <p className="mt-2 text-cyan-300">This ensures optimal biological filtration and plant growing capacity.</p>
+              </div>
+            }
           />
           <StatCard
-            title="Actual BioFilter Volume"
+            title="Actual Volume"
             value={volumeComparison.actualVolume}
-            unit="Liters"
+            unit="L"
             precision={0}
             accentColor={volumeComparison.actualVolumeColor}
-            tooltip={`Current biofilter volume differs by ${volumeComparison.percentageDiff.toFixed(1)}% from target. Cyan is optimal (±10%), yellow is acceptable (10-30% difference), red indicates significant deviation (>30%)`}
+            tooltip={
+              <div>
+                <p className="font-semibold text-white mb-2">Actual BioFilter Volume</p>
+                <p>Current: <strong>{volumeComparison.percentageDiff.toFixed(1)}% difference</strong> from target</p>
+                <div className="mt-3 space-y-1">
+                  <p><span className="inline-block w-3 h-3 bg-cyan-400 rounded mr-2"></span><strong>Cyan:</strong> Optimal (±10%)</p>
+                  <p><span className="inline-block w-3 h-3 bg-yellow-400 rounded mr-2"></span><strong>Yellow:</strong> Warning (10-30%)</p>
+                  <p><span className="inline-block w-3 h-3 bg-red-500 rounded mr-2"></span><strong>Red:</strong> Critical (&gt;30%)</p>
+                </div>
+              </div>
+            }
           />
         </div>
       </div>
