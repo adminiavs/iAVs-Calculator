@@ -44,24 +44,8 @@
 
       body {
         font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, var(--color-bg-primary) 0%, #1a202c 100%);
-        background-attachment: fixed;
+        background: var(--color-bg-primary);
         position: relative;
-      }
-
-      /* Subtle background texture */
-      body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: 
-          radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
-          radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
-        pointer-events: none;
-        z-index: -1;
       }
 
       h1, h2, h3, h4, h5, h6 {

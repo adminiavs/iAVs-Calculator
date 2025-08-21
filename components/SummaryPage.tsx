@@ -31,9 +31,9 @@ const SummaryItem: React.FC<{ label: string; value: string }> = ({ label, value 
 );
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10">
-        <h2 className="text-3xl font-semibold text-white border-b border-slate-600 pb-3 mb-4">{title}</h2>
-        <dl className="space-y-2">
+    <div className="bg-slate-800 rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-white border-b border-slate-700 pb-3 mb-4">{title}</h2>
+        <dl className="space-y-3">
             {children}
         </dl>
     </div>
@@ -71,40 +71,39 @@ export default function SummaryPage({
   const isTankTooSmall = displayResult.volumeLiters < 500 && (unitConfig.vol === "Liters") || displayResult.volumeLiters < 132 && (unitConfig.vol === "Gallons");
 
   return (
-    <div>
+    <div className="px-4">
         <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-white">System Summary</h1>
+            <h1 className="text-2xl font-bold text-white">System Summary</h1>
              <div className="flex items-center gap-4">
                 <div className="relative">
                     <select 
                       value={unit}
                       onChange={(e) => setUnit(e.target.value as Unit)}
-                      className="bg-slate-700 text-white font-medium text-base rounded-lg pl-4 pr-10 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+                      className="bg-slate-700 text-white font-medium text-sm rounded-lg pl-3 pr-8 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
                       aria-label="Select unit of measurement"
                     >
                       {Object.entries(conversions).map(([key, value]) => (
                         <option key={key} value={key}>{value.name}</option>
                       ))}
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                      <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                 </div>
                 <button
                     onClick={onSaveAsPdf}
                     disabled={isSavingPdf}
-                    className="bg-gradient-to-b from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 disabled:from-slate-600 disabled:to-slate-700 disabled:cursor-not-allowed text-white font-bold py-2.5 px-5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-base shadow-lg shadow-cyan-500/20 transform hover:scale-105"
+                    className="bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
                 >
                     {isSavingPdf ? 'Saving...' : 'Save as PDF'}
                 </button>
             </div>
         </div>
-        <div className="bg-slate-900">
-            <main className="max-w-4xl mx-auto flex flex-col gap-8">
+        <div className="max-w-4xl mx-auto space-y-8">
                 {warnings.length > 0 && (
-                     <div className="bg-yellow-900/50 border border-yellow-700 text-yellow-300 px-5 py-4 rounded-2xl" role="alert">
-                        <h2 className="text-2xl font-semibold text-yellow-200 mb-3">Alerts & Recommendations</h2>
-                        <ul className="list-disc list-inside space-y-2">
+                     <div className="bg-yellow-900/50 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-lg" role="alert">
+                        <h2 className="text-lg font-semibold text-yellow-200 mb-2">Alerts & Recommendations</h2>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
                             {warnings.map((warning, index) => (
                                 <li key={index}>{warning}</li>
                             ))}
@@ -137,8 +136,6 @@ export default function SummaryPage({
                  <SummaryItem label="Recommended Stocking Rate" value={isTankTooSmall ? "0 Fingerlings" : `${minStock} - ${maxStock} Fingerlings`} />
                  <SummaryItem label="Basis" value="Fingerlings (15g each)" />
               </Section>
-            </main>
-
         </div>
     </div>
   );

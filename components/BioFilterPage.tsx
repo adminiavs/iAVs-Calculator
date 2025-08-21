@@ -107,107 +107,82 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
   );
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Volume Comparison Box */}
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 mb-8">
-        <h3 className="text-xl font-semibold text-white mb-4">BioFilter Volume Comparison</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-slate-900/50 rounded-xl p-5 flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-slate-200">Target BioFilter Volume</h3>
-            <div className="text-left">
-              <span className="text-4xl font-bold font-mono text-cyan-400">{Math.round(volumeComparison.targetVolume).toLocaleString()}</span>
-              <span className="text-2xl text-slate-400 ml-2 font-medium">L</span>
+    <div className="px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Main Content Grid */}
+        <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column: Configuration & Diagram */}
+        <div className="flex flex-col gap-8">
+          <div className="bg-slate-800 rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-white border-b border-slate-700 pb-4 mb-6">BioFilter Configuration</h2>
+            <div className="space-y-6">
+              <InputSlider label="Width" value={displayDimensions.width} onChange={(v) => onChange('width', v)} min={sliderConfig.width.min} max={sliderConfig.width.max} step={sliderConfig.width.step} sliderStep={sliderConfig.width.sliderStep} unit={unit} />
+              <InputSlider label="Length" value={displayDimensions.length} onChange={(v) => onChange('length', v)} min={sliderConfig.length.min} max={sliderConfig.length.max} step={sliderConfig.length.step} sliderStep={sliderConfig.length.sliderStep} unit={unit} />
+              <InputSlider label="Sand Depth (Shallow End)" value={displayDimensions.shallowDepth} onChange={(v) => onChange('shallowDepth', v)} min={sliderConfig.depth.min} max={sliderConfig.depth.max} step={sliderConfig.depth.step} sliderStep={sliderConfig.depth.sliderStep} unit={unit} tooltip="30cm is recommended for most uses." />
+              <InputSlider label="Slope" value={displayDimensions.slope} onChange={(v) => onChange('slope', v)} min={2} max={10} step={1} unit="cm/m" tooltip="The recommended slope is 2cm per meter." />
+              <InputSlider label="Freeboard" value={displayDimensions.freeboard} onChange={(v) => onChange('freeboard', v)} min={sliderConfig.freeboard.min} max={sliderConfig.freeboard.max} step={sliderConfig.freeboard.step} sliderStep={sliderConfig.freeboard.sliderStep} unit={unit} tooltip="Freeboard is the distance from the top of the sand to the top of the biofilter container." />
             </div>
-            <div className="text-sm text-slate-400 mt-1">2x tank volume</div>
           </div>
-          <div className="bg-slate-900/50 rounded-xl p-5 flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-slate-200">Actual BioFilter Volume</h3>
-            <div className="text-left">
-              <span className={`text-4xl font-bold font-mono transition-colors ${
-                volumeComparison.color === 'red' ? 'text-red-500' : 
-                volumeComparison.color === 'yellow' ? 'text-yellow-400' : 
-                'text-cyan-400'
-              }`}>{volumeComparison.actualVolume.toLocaleString()}</span>
-              <span className="text-2xl text-slate-400 ml-2 font-medium">L</span>
-            </div>
-            <div className="text-sm text-slate-400 mt-1">
-              {volumeComparison.percentageDiff ? 
-                `${volumeComparison.percentageDiff}% difference from target` : 
-                'Based on current dimensions'}
-            </div>
+          <div className="bg-slate-800 rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-white border-b border-slate-700 pb-4 mb-6">Technical Diagram</h2>
+              <div className="min-h-[250px] bg-slate-900 rounded-lg p-4">
+                  <BioFilterDiagram 
+                      length={displayDimensions.length}
+                      shallowDepth={displayDimensions.shallowDepth}
+                      deepDepth={derivedDisplayValues.displayDeepDepth}
+                      freeboard={displayDimensions.freeboard}
+                      unit={unit}
+                  />
+              </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content Grid */}
-      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* Left Column: Configuration & Diagram */}
-      <div className="flex flex-col gap-8">
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 flex flex-col gap-8">
-          <h2 className="text-3xl font-semibold text-white border-b border-slate-700 pb-4">BioFilter Configuration</h2>
-          <InputSlider label="Width" value={displayDimensions.width} onChange={(v) => onChange('width', v)} min={sliderConfig.width.min} max={sliderConfig.width.max} step={sliderConfig.width.step} sliderStep={sliderConfig.width.sliderStep} unit={unit} />
-          <InputSlider label="Length" value={displayDimensions.length} onChange={(v) => onChange('length', v)} min={sliderConfig.length.min} max={sliderConfig.length.max} step={sliderConfig.length.step} sliderStep={sliderConfig.length.sliderStep} unit={unit} />
-          <InputSlider label="Sand Depth (Shallow End)" value={displayDimensions.shallowDepth} onChange={(v) => onChange('shallowDepth', v)} min={sliderConfig.depth.min} max={sliderConfig.depth.max} step={sliderConfig.depth.step} sliderStep={sliderConfig.depth.sliderStep} unit={unit} tooltip="30cm is recommended for most uses." />
-          <InputSlider label="Slope" value={displayDimensions.slope} onChange={(v) => onChange('slope', v)} min={2} max={10} step={1} unit="cm/m" tooltip="The recommended slope is 2cm per meter." />
-          <InputSlider label="Freeboard" value={displayDimensions.freeboard} onChange={(v) => onChange('freeboard', v)} min={sliderConfig.freeboard.min} max={sliderConfig.freeboard.max} step={sliderConfig.freeboard.step} sliderStep={sliderConfig.freeboard.sliderStep} unit={unit} tooltip="Freeboard is the distance from the top of the sand to the top of the biofilter container." />
-        </div>
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10">
-            <h2 className="text-3xl font-semibold text-white border-b border-slate-700 pb-4 mb-4">Technical Diagram</h2>
-            <div className="min-h-[250px] bg-slate-900 rounded-lg p-2">
-                <BioFilterDiagram 
-                    length={displayDimensions.length}
-                    shallowDepth={displayDimensions.shallowDepth}
-                    deepDepth={derivedDisplayValues.displayDeepDepth}
-                    freeboard={displayDimensions.freeboard}
-                    unit={unit}
-                />
+        {/* Right Column: Results */}
+        <div className="bg-slate-800 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-white border-b border-slate-700 pb-4 mb-6">Calculated Results</h2>
+          <div className="space-y-6">
+           <StatCard
+            title="BioFilter Height"
+            value={derivedDisplayValues.displayTotalContainerHeight}
+            unit={unit}
+            precision={1}
+          />
+          <StatCard
+            title="Sand Depth (Deep End)"
+            value={derivedDisplayValues.displayDeepDepth}
+            unit={unit}
+            precision={1}
+          />
+          <StatCard 
+            title="Surface Area" 
+            value={calculations.surfaceAreaM2} 
+            unit="m²"
+            accentColor={calculations.surfaceAreaColor}
+            precision={2}
+          />
+          <StatCard
+            title="Volume of Sand"
+            value={calculations.sandVolumeLiters}
+            unit="Liters"
+            accentColor={calculations.sandVolumeColor}
+            tooltip="This is the volume of sand required for the biofilter. The color indicates how well it matches the recommended target (2x the tank volume). Cyan is ideal, yellow is a warning, and red is critically low."
+          />
+          <StatCard
+            title="Estimated Sand Required"
+            value={`${calculations.sandWeightTonnes.toFixed(2)} tonnes (${calculations.sandWeightKg.toFixed(0)} kg)`}
+            unit=""
+            tooltip={sandWeightTooltip}
+          />
+          {showLengthWarning && (
+            <div className="bg-yellow-900/50 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-lg text-sm mt-4" role="alert">
+              <p className="font-semibold">Caution: Long Biofilter</p>
+              <p>For biofilters longer than 6 meters (approx. 20ft), additional drainage may be required. Please refer to the iAVs handbook for advanced designs.</p>
             </div>
-        </div>
-      </div>
-
-      {/* Right Column: Results */}
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 flex flex-col gap-6">
-        <h2 className="text-3xl font-semibold text-white border-b border-slate-700 pb-4">Calculated Results</h2>
-         <StatCard
-          title="BioFilter Height"
-          value={derivedDisplayValues.displayTotalContainerHeight}
-          unit={unit}
-          precision={1}
-        />
-        <StatCard
-          title="Sand Depth (Deep End)"
-          value={derivedDisplayValues.displayDeepDepth}
-          unit={unit}
-          precision={1}
-        />
-        <StatCard 
-          title="Surface Area" 
-          value={calculations.surfaceAreaM2} 
-          unit="m²"
-          accentColor={calculations.surfaceAreaColor}
-          precision={2}
-        />
-        <StatCard
-          title="Volume of Sand"
-          value={calculations.sandVolumeLiters}
-          unit="Liters"
-          accentColor={calculations.sandVolumeColor}
-          tooltip="This is the volume of sand required for the biofilter. The color indicates how well it matches the recommended target (2x the tank volume). Cyan is ideal, yellow is a warning, and red is critically low."
-        />
-        <StatCard
-          title="Estimated Sand Required"
-          value={`${calculations.sandWeightTonnes.toFixed(2)} tonnes (${calculations.sandWeightKg.toFixed(0)} kg)`}
-          unit=""
-          tooltip={sandWeightTooltip}
-        />
-        {showLengthWarning && (
-          <div className="bg-yellow-900/50 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-lg text-base mt-2" role="alert">
-            <p className="font-bold">Caution: Long Biofilter</p>
-            <p>For biofilters longer than 6 meters (approx. 20ft), additional drainage may be required. Please refer to the iAVs handbook for advanced designs.</p>
+          )}
           </div>
-        )}
+        </div>
+      </main>
       </div>
-    </main>
     </div>
   );
 }
