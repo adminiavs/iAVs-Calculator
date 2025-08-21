@@ -636,6 +636,7 @@ export default function App(): React.ReactNode {
               <div className="flex flex-col gap-8">
                 {/* INPUTS */}
                 <div className="bg-slate-800 rounded-lg p-6">
+                  <p className="text-slate-400 text-sm mb-4 italic">Enter your dimensional values to suit the desired scale.</p>
                   <div className="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
                     <h2 className="text-xl font-semibold text-white">Tank Configuration</h2>
                     <div className="relative">

@@ -114,6 +114,7 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
         {/* Left Column: Configuration & Diagram */}
         <div className="flex flex-col gap-8">
           <div className="bg-slate-800 rounded-lg p-6">
+            <p className="text-slate-400 text-sm mb-4 italic">Enter your dimensional values to suit the desired scale.</p>
             <h2 className="text-xl font-semibold text-white border-b border-slate-700 pb-4 mb-6">BioFilter Configuration</h2>
             <div className="space-y-6">
               <InputSlider label="Width" value={displayDimensions.width} onChange={(v) => onChange('width', v)} min={sliderConfig.width.min} max={sliderConfig.width.max} step={sliderConfig.width.step} sliderStep={sliderConfig.width.sliderStep} unit={unit} />

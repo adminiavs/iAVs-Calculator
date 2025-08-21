@@ -123,7 +123,7 @@ export default function TankDiagram({ dimensions, displayDimensions, unit }: Tan
       
       {/* Side View */}
       <g>
-         <text x={topX} y={sideViewY - 12} className="fill-slate-300 font-semibold text-base">Side View (Profile)</text>
+         <text x={topX} y={sideViewY - 12} className="fill-slate-300 font-semibold text-base">Vertical Section across Width</text>
          <path d={widthViewPath} className="fill-cyan-500/10 stroke-cyan-400 stroke-2" />
          
          {/* Vertical Centerline */}
@@ -148,7 +148,7 @@ export default function TankDiagram({ dimensions, displayDimensions, unit }: Tan
             <DimensionLine 
               x1={topX + dWidth / 2} y1={curveStartPointY} 
               x2={topX + dWidth / 2} y2={curveDeepestY} 
-              label={`Curve: ${displayCurveDepthVal.toFixed(precision)} ${unit}`} 
+              label={`Maximum depth: ${displayCurveDepthVal.toFixed(precision)} ${unit}`} 
               offset={8}
               isInternal={true}
               textAnchor="start"

@@ -4,6 +4,8 @@
 <img width="1200" height="475" alt="iAVs Calculator Banner" src="images/iavs calc header.png" />
 </div>
 
+> **Enter your dimensional values to suit the desired scale.**
+
 ## What is iAVs?
 
 **iAVs** (Integrated Aqua-Vegeculture System) is a scientifically validated, closed-loop food production system that combines aquaculture (fish farming) with soil-based horticulture. It was designed to use water very efficiently while being simple and easy to manage from both practical and technical standpoints.
