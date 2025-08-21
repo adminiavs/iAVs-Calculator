@@ -418,22 +418,26 @@ export default function App(): React.ReactNode {
     const { length, width, depth } = dimensions;
     if (depth < 600) return 'red';
 
-    const shortestSide = Math.min(length, width);
-    if (depth === 0 || shortestSide === 0) return 'cyan';
+    const shortestHorizontalDimension = Math.min(length, width);
+    if (depth === 0 || shortestHorizontalDimension === 0) return 'cyan';
 
-    const ratio = shortestSide / depth;
+    // Dynamic thresholds based on SHD (Shortest Horizontal Dimension)
+    const yellowThreshold = shortestHorizontalDimension * 1.2; // 1.2 * SHD
+    const redThreshold = shortestHorizontalDimension * 1.5;    // 1.5 * SHD
 
-    // New Ideal Range: 0.75 to 1.5
-    if (ratio >= 0.75 && ratio <= 1.5) return 'cyan';
-    
-    // Add a yellow buffer zone around the ideal range
-    const buffer = (1.5 - 0.75) * 0.25; // 0.1875
-    const yellowLowerBound = 0.75 - buffer; // 0.5625
-    const yellowUpperBound = 1.5 + buffer; // 1.6875
-
-    if (ratio >= yellowLowerBound && ratio <= yellowUpperBound) return 'yellow';
-
-    return 'red';
+    if (depth <= shortestHorizontalDimension) {
+      // Depth is less than or equal to SHD - optimal
+      return 'cyan';
+    } else if (depth <= yellowThreshold) {
+      // Depth exceeds SHD but is within yellow threshold (1.2 * SHD)
+      return 'yellow';
+    } else if (depth <= redThreshold) {
+      // Depth exceeds yellow threshold but is within red threshold (1.5 * SHD)
+      return 'yellow';
+    } else {
+      // Depth exceeds red threshold (1.5 * SHD) - critical
+      return 'red';
+    }
   }, [dimensions.length, dimensions.width, dimensions.depth]);
 
   const optimalRadiusTooltip = useMemo(() => {
@@ -456,6 +460,31 @@ export default function App(): React.ReactNode {
       </div>
     );
   }, [dimensions.length, dimensions.width, unit]);
+
+  const maxDepthTooltip = useMemo(() => {
+    const shortestHorizontalDimension = Math.min(dimensions.length, dimensions.width);
+    const yellowThreshold = shortestHorizontalDimension * 1.2;
+    const redThreshold = shortestHorizontalDimension * 1.5;
+    
+    const converter = unitConversions[unit].fromMM;
+    const shdDisplay = converter(shortestHorizontalDimension);
+    const yellowDisplay = converter(yellowThreshold);
+    const redDisplay = converter(redThreshold);
+    const precision = (unit === 'm' || unit === 'ft') ? 2 : 1;
+
+    return (
+      <div className="text-left">
+        <p className="font-bold text-white mb-1">Depth Guidelines</p>
+        <p className="mb-2">A depth of less than 60cm is not recommended for fish welfare.</p>
+        <p className="mb-1">Based on your tank's shortest horizontal dimension ({shdDisplay.toFixed(precision)} {unit}):</p>
+        <ul className="text-sm space-y-1">
+          <li><span className="text-cyan-300">● Cyan:</span> Depth ≤ {shdDisplay.toFixed(precision)} {unit} (optimal)</li>
+          <li><span className="text-yellow-300">● Yellow:</span> Depth &gt; {shdDisplay.toFixed(precision)} {unit} (caution)</li>
+          <li><span className="text-red-300">● Red:</span> Depth &gt; {redDisplay.toFixed(precision)} {unit} (critical)</li>
+        </ul>
+      </div>
+    );
+  }, [dimensions.length, dimensions.width, unit]);
   
   const warnings = useMemo(() => {
     const allWarnings: string[] = [];
@@ -463,7 +492,15 @@ export default function App(): React.ReactNode {
       allWarnings.push('The Bottom Profile is sub-optimal. A flat bottom may impede waste collection, while a deep curve provides the best stability and cleaning.');
     }
     if (maxDepthColor !== 'cyan') {
-      allWarnings.push('The shortest-side-to-depth ratio is outside the ideal range (0.75:1 to 1.5:1), which may indicate a high-risk or unstable design.');
+      const shortestHorizontalDimension = Math.min(dimensions.length, dimensions.width);
+      const yellowThreshold = shortestHorizontalDimension * 1.2;
+      const redThreshold = shortestHorizontalDimension * 1.5;
+      
+      if (maxDepthColor === 'red') {
+        allWarnings.push(`The tank depth (${(dimensions.depth / 1000).toFixed(2)}m) exceeds 1.5 times the shortest horizontal dimension (${(shortestHorizontalDimension / 1000).toFixed(2)}m), indicating significant structural engineering considerations and stability risks.`);
+      } else {
+        allWarnings.push(`The tank depth (${(dimensions.depth / 1000).toFixed(2)}m) exceeds the shortest horizontal dimension (${(shortestHorizontalDimension / 1000).toFixed(2)}m), which may indicate increasing structural demands or potential stability issues.`);
+      }
     }
      if (dimensions.depth < 600) {
       allWarnings.push('A depth of less than 60cm is not recommended for fish welfare.');
@@ -669,7 +706,7 @@ export default function App(): React.ReactNode {
                       sliderStep={sliderConfig.depth.sliderStep}
                       unit={unit} 
                       accentColor={maxDepthColor}
-                      tooltip="A depth of less than 60cm is not recommended for fish welfare. The color also indicates structural soundness: Cyan is an ideal shortest-side-to-depth ratio (0.75:1 to 1.5:1), Yellow is a warning, and Red indicates a high-risk design."
+                      tooltip={maxDepthTooltip}
                     />
                     <InputSlider 
                       label="Corner Radius" 

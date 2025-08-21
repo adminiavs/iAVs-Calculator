@@ -67,7 +67,8 @@ export default function TankDiagram({ dimensions, displayDimensions, unit }: Tan
   const scale = (maxDim > 0 ? (VIEWBOX_WIDTH - PADDING * 2) / maxDim : 0);
   const dLength = length * scale;
   const dWidth = width * scale;
-  const dDepth = depth * scale;
+  // Scale depth more conservatively to show more realistic proportions
+  const dDepth = depth * scale * 0.7; // Reduce depth scaling by 30% for better visual proportions
   const dRadius = Math.min(cornerRadius * scale, dLength/2, dWidth/2);
 
   // Top View
