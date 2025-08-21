@@ -6,9 +6,11 @@ interface FishPageProps {
   maxStock: number;
   adjustmentMessage: string;
   isTankTooSmall: boolean;
+  tankVolumeLiters: number;
+  biofilterVolumeLiters: number;
 }
 
-export default function FishPage({ minStock, maxStock, adjustmentMessage, isTankTooSmall }: FishPageProps): React.ReactNode {
+export default function FishPage({ minStock, maxStock, adjustmentMessage, isTankTooSmall, tankVolumeLiters, biofilterVolumeLiters }: FishPageProps): React.ReactNode {
   
   const finalMinStock = isTankTooSmall ? 0 : minStock;
   const finalMaxStock = isTankTooSmall ? 0 : maxStock;
@@ -42,7 +44,7 @@ export default function FishPage({ minStock, maxStock, adjustmentMessage, isTank
 
           <div className="text-slate-400 text-center space-y-4">
             <p>
-              The recommended base stocking rate for fingerlings (15g each) is between <span className="font-semibold text-cyan-300">80 to 100 fingerlings per 1000 Liters</span> of water volume with an ideally sized biofilter.
+              The recommended base stocking rate for fingerlings (15g each) is between <span className="font-semibold text-cyan-300">80 to 100 fingerlings per 1000 Liters</span> of water volume with an ideally sized biofilter. The recommended amount is based on your <span className="font-semibold text-cyan-300">{tankVolumeLiters.toFixed(0)} Liters</span> tank, and your <span className="font-semibold text-cyan-300">{biofilterVolumeLiters.toFixed(0)} Liters</span> BioFilter.
             </p>
             {adjustmentMessage && (
                <p className="font-semibold text-yellow-300">

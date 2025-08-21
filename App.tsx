@@ -722,6 +722,8 @@ export default function App(): React.ReactNode {
             maxStock={fishStockingCalculation.maxStock}
             adjustmentMessage={fishStockingCalculation.adjustmentMessage}
             isTankTooSmall={result.volumeLiters < 500}
+            tankVolumeLiters={result.volumeLiters}
+            biofilterVolumeLiters={biofilterCalculations.totalBiofilterVolumeLiters}
           />
         )}
 
