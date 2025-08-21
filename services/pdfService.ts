@@ -12,7 +12,6 @@ interface PdfData {
     biofilterLinerDimensions: { length: number; width: number; };
     fishStocking: { minStock: number; maxStock: number; };
     warnings: string[];
-    advice: string;
     pumpLphRange: { min: number; max: number; };
     headHeight: number;
 }
@@ -29,7 +28,6 @@ export function generateSummaryPdf(data: PdfData): void {
         biofilterLinerDimensions,
         fishStocking,
         warnings,
-        advice,
         pumpLphRange,
         headHeight
     } = data;
@@ -149,42 +147,7 @@ export function generateSummaryPdf(data: PdfData): void {
     const isTankTooSmall = displayResult.volumeLiters < 500 && (unitConfig.vol === "Liters") || displayResult.volumeLiters < 132 && (unitConfig.vol === "Gallons");
     addLineItem('Recommended Stocking Rate', isTankTooSmall ? "0 Fingerlings" : `${fishStocking.minStock} - ${fishStocking.maxStock} Fingerlings`);
     addLineItem('Basis', 'Fingerlings (15g each)');
-    
-    // Build Advice
-    if (advice) {
-        if (y > pageHeight - 40) { // check if there's enough space for the header
-            doc.addPage();
-            y = margin;
-        }
-        addSectionHeader('Digging & Build Guide');
 
-        advice.split('\n').forEach(line => {
-             if (y > pageHeight - 15) {
-                doc.addPage();
-                y = margin;
-            }
-            if (line.startsWith('### ') || line.startsWith('## ') || line.startsWith('# ')) {
-                const headerText = line.replace(/^[#]+\s/, '');
-                y += 3;
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(15, 23, 42);
-                addWrappedText(headerText);
-                y += 2;
-            } else if (line.startsWith('* ') || line.startsWith('- ')) {
-                addWrappedText(line.substring(2), true);
-            } else if (line.trim() !== '') {
-                 addWrappedText(line);
-            } else {
-                y += 2; // smaller gap for newlines
-            }
-        });
-
-    } else {
-        addSectionHeader('Digging & Build Guide');
-        doc.setFont('helvetica', 'italic');
-        addWrappedText('Build advice has not been generated. Click "Generate Build Advice" in the app and save the PDF again to include it.');
-    }
 
     doc.save('iAVs-Summary.pdf');
 }

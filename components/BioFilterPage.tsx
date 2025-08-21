@@ -31,6 +31,7 @@ interface BioFilterPageProps {
     sandWeightKg: number;
     totalBiofilterVolumeLiters: number;
   };
+  tankVolumeLiters: number;
 }
 
 const unitConversions = {
@@ -40,8 +41,41 @@ const unitConversions = {
   ft: { fromMM: (v: number) => v / 304.8 },
 };
 
-export default function BioFilterPage({ dimensions, displayDimensions, onChange, unit, sliderConfig, calculations }: BioFilterPageProps): React.ReactNode {
+export default function BioFilterPage({ dimensions, displayDimensions, onChange, unit, sliderConfig, calculations, tankVolumeLiters }: BioFilterPageProps): React.ReactNode {
   
+  // Volume comparison calculations
+  const volumeComparison = useMemo(() => {
+    const targetVolume = tankVolumeLiters * 2; // Target is 2x tank volume
+    const actualVolume = calculations.totalBiofilterVolumeLiters;
+    
+    if (targetVolume === 0) {
+      return { targetVolume, actualVolume, color: 'cyan' as const };
+    }
+    
+    const ratio = actualVolume / targetVolume;
+    const percentageDiff = Math.abs(ratio - 1) * 100;
+    
+    let color: 'red' | 'yellow' | 'cyan' = 'cyan';
+    
+    if (ratio < 1) {
+      // Biofilter is smaller than target - more strict
+      if (percentageDiff >= 30) {
+        color = 'red';
+      } else if (percentageDiff >= 10) {
+        color = 'yellow';
+      }
+    } else {
+      // Biofilter is larger than target - more lenient
+      if (percentageDiff >= 50) {
+        color = 'red';
+      } else if (percentageDiff >= 20) {
+        color = 'yellow';
+      }
+    }
+    
+    return { targetVolume, actualVolume, color, percentageDiff: percentageDiff.toFixed(1) };
+  }, [tankVolumeLiters, calculations.totalBiofilterVolumeLiters]);
+
   const derivedDisplayValues = useMemo(() => {
     const { shallowDepth, length, slope } = dimensions;
     const length_m = length / 1000;
@@ -67,7 +101,39 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
   );
 
   return (
-    <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="max-w-7xl mx-auto">
+      {/* Volume Comparison Box */}
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 mb-8">
+        <h3 className="text-xl font-semibold text-white mb-4">BioFilter Volume Comparison</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-slate-900/50 rounded-xl p-5 flex flex-col gap-2">
+            <h3 className="text-lg font-semibold text-slate-200">Target BioFilter Volume</h3>
+            <div className="text-left">
+              <span className="text-4xl font-bold font-mono text-cyan-400">{Math.round(volumeComparison.targetVolume).toLocaleString()}</span>
+              <span className="text-2xl text-slate-400 ml-2 font-medium">L</span>
+            </div>
+            <div className="text-sm text-slate-400 mt-1">2x tank volume</div>
+          </div>
+          <div className="bg-slate-900/50 rounded-xl p-5 flex flex-col gap-2">
+            <h3 className="text-lg font-semibold text-slate-200">Actual BioFilter Volume</h3>
+            <div className="text-left">
+              <span className={`text-4xl font-bold font-mono transition-colors ${
+                volumeComparison.color === 'red' ? 'text-red-500' : 
+                volumeComparison.color === 'yellow' ? 'text-yellow-400' : 
+                'text-cyan-400'
+              }`}>{volumeComparison.actualVolume.toLocaleString()}</span>
+              <span className="text-2xl text-slate-400 ml-2 font-medium">L</span>
+            </div>
+            <div className="text-sm text-slate-400 mt-1">
+              {volumeComparison.percentageDiff ? 
+                `${volumeComparison.percentageDiff}% difference from target` : 
+                'Based on current dimensions'}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Left Column: Configuration & Diagram */}
       <div className="flex flex-col gap-8">
         <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 flex flex-col gap-8">
@@ -135,5 +201,6 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
         )}
       </div>
     </main>
+    </div>
   );
 }

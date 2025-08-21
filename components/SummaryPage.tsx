@@ -1,6 +1,6 @@
 import React from 'react';
 import { Unit } from '../types';
-import AdviceSection from './AdviceSection';
+
 
 interface SummaryPageProps {
   unit: Unit;
@@ -18,10 +18,7 @@ interface SummaryPageProps {
   warnings: string[];
   onSaveAsPdf: () => void;
   isSavingPdf: boolean;
-  onGetAdvice: () => void;
-  isLoadingAdvice: boolean;
-  advice: string;
-  error: string | null;
+
   pumpLphRange: { min: number; max: number; };
   headHeight: number;
 }
@@ -65,10 +62,6 @@ export default function SummaryPage({
   warnings,
   onSaveAsPdf,
   isSavingPdf,
-  onGetAdvice,
-  isLoadingAdvice,
-  advice,
-  error,
   pumpLphRange,
   headHeight
 }: SummaryPageProps): React.ReactNode {
@@ -145,14 +138,7 @@ export default function SummaryPage({
                  <SummaryItem label="Basis" value="Fingerlings (15g each)" />
               </Section>
             </main>
-            <div className="max-w-4xl mx-auto mt-8 bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10">
-                <AdviceSection 
-                    onGetAdvice={onGetAdvice}
-                    isLoading={isLoadingAdvice}
-                    advice={advice}
-                    error={error}
-                />
-            </div>
+
         </div>
     </div>
   );

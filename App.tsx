@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { TankDimensions, CalculationResult, Unit, BiofilterDimensions } from './types';
 import { calculateTankVolume } from './services/calculator';
-import { getDiggingAdvice } from './services/geminiService';
+
 import { generateSummaryPdf } from './services/pdfService';
 import InputSlider from './components/InputSlider';
 import TankDiagram from './components/TankDiagram';
@@ -55,8 +55,6 @@ export default function App(): React.ReactNode {
   const [biofilterDimensions, setBiofilterDimensions] = useState<BiofilterDimensions>(DEFAULT_BIOFILTER_DIMENSIONS);
 
   const [unit, setUnit] = useState<Unit>('m');
-  const [advice, setAdvice] = useState<string>('');
-  const [isLoadingAdvice, setIsLoadingAdvice] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const [includeFishTankLinerOverlap, setIncludeFishTankLinerOverlap] = useState<boolean>(true);
@@ -107,7 +105,6 @@ export default function App(): React.ReactNode {
     setDimensions(DEFAULT_TANK_DIMENSIONS);
     setBiofilterDimensions(DEFAULT_BIOFILTER_DIMENSIONS);
     setUnit('m');
-    setAdvice('');
     setError(null);
     setIncludeFishTankLinerOverlap(true);
     setIncludeBiofilterLinerOverlap(true);
@@ -138,14 +135,7 @@ export default function App(): React.ReactNode {
   }, [unit]);
 
 
-  const handleGetAdvice = async () => {
-    setIsLoadingAdvice(true);
-    setError(null);
-    setAdvice('');
-    const generatedAdvice = await getDiggingAdvice(dimensions, result);
-    setAdvice(generatedAdvice);
-    setIsLoadingAdvice(false);
-  };
+
 
   const displayDimensions = useMemo(() => {
     const converter = conversions[unit].fromMM;
@@ -517,7 +507,6 @@ export default function App(): React.ReactNode {
             biofilterLinerDimensions,
             fishStocking: fishStockingCalculation,
             warnings,
-            advice,
             pumpLphRange,
             headHeight
         });
@@ -615,10 +604,6 @@ export default function App(): React.ReactNode {
             warnings={warnings}
             onSaveAsPdf={handleSaveSummaryPdf}
             isSavingPdf={isSavingPdf}
-            onGetAdvice={handleGetAdvice}
-            isLoadingAdvice={isLoadingAdvice}
-            advice={advice}
-            error={error}
             pumpLphRange={pumpLphRange}
             headHeight={headHeight}
           />
@@ -751,6 +736,7 @@ export default function App(): React.ReactNode {
             unit={unit}
             sliderConfig={biofilterSliderConfig}
             calculations={biofilterCalculations}
+            tankVolumeLiters={result.volumeLiters}
           />
         )}
 
