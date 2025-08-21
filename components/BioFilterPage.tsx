@@ -73,7 +73,13 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
       }
     }
     
-    return { targetVolume, actualVolume, color, percentageDiff: percentageDiff.toFixed(1) };
+    return { 
+      targetVolume, 
+      actualVolume, 
+      color, 
+      actualVolumeColor: color, // Alias for StatCard compatibility
+      percentageDiff: parseFloat(percentageDiff.toFixed(1))
+    };
   }, [tankVolumeLiters, calculations.totalBiofilterVolumeLiters]);
 
   const derivedDisplayValues = useMemo(() => {
@@ -101,38 +107,46 @@ export default function BioFilterPage({ dimensions, displayDimensions, onChange,
   );
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto flex flex-col gap-8">
       {/* Volume Comparison Box */}
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl ring-1 ring-white/10 mb-8">
-        <h3 className="text-xl font-semibold text-white mb-4">BioFilter Volume Comparison</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-slate-900/50 rounded-xl p-5 flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-slate-200">Target BioFilter Volume</h3>
-            <div className="text-left">
-              <span className="text-4xl font-bold font-mono text-cyan-400">{Math.round(volumeComparison.targetVolume).toLocaleString()}</span>
-              <span className="text-2xl text-slate-400 ml-2 font-medium">L</span>
-            </div>
-            <div className="text-sm text-slate-400 mt-1">2x tank volume</div>
-          </div>
-          <div className="bg-slate-900/50 rounded-xl p-5 flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-slate-200">Actual BioFilter Volume</h3>
-            <div className="text-left">
-              <span className={`text-4xl font-bold font-mono transition-colors ${
-                volumeComparison.color === 'red' ? 'text-red-500' : 
-                volumeComparison.color === 'yellow' ? 'text-yellow-400' : 
-                'text-cyan-400'
-              }`}>{volumeComparison.actualVolume.toLocaleString()}</span>
-              <span className="text-2xl text-slate-400 ml-2 font-medium">L</span>
-            </div>
-            <div className="text-sm text-slate-400 mt-1">
-              {volumeComparison.percentageDiff ? 
-                `${volumeComparison.percentageDiff}% difference from target` : 
-                'Based on current dimensions'}
-            </div>
-          </div>
+      <div className="bg-slate-800 rounded-2xl p-4 shadow-2xl ring-1 ring-white/10">
+        <h2 className="text-xl font-semibold text-white mb-4">BioFilter Volume Analysis</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <StatCard
+            title="Target Volume"
+            value={volumeComparison.targetVolume}
+            unit="L"
+            precision={0}
+            tooltip={
+              <div>
+                <p className="font-semibold text-white mb-2">Target BioFilter Volume</p>
+                <p>Calculated as <strong>2× tank volume</strong> based on scientifically validated iAVs ratios.</p>
+                <p className="mt-2 text-cyan-300">This ensures optimal biological filtration and plant growing capacity.</p>
+              </div>
+            }
+          />
+          <StatCard
+            title="Actual Volume"
+            value={volumeComparison.actualVolume}
+            unit="L"
+            precision={0}
+            accentColor={volumeComparison.actualVolumeColor}
+            tooltip={
+              <div>
+                <p className="font-semibold text-white mb-2">Actual BioFilter Volume</p>
+                <p>Current: <strong>{volumeComparison.percentageDiff.toFixed(1)}% difference</strong> from target</p>
+                <div className="mt-3 space-y-1">
+                  <p><span className="inline-block w-3 h-3 bg-cyan-400 rounded mr-2"></span><strong>Cyan:</strong> Optimal (±10% under, ±20% over)</p>
+                  <p><span className="inline-block w-3 h-3 bg-yellow-400 rounded mr-2"></span><strong>Yellow:</strong> Warning (10-30% under, 20-50% over)</p>
+                  <p><span className="inline-block w-3 h-3 bg-red-500 rounded mr-2"></span><strong>Red:</strong> Critical (&gt;30% under, &gt;50% over)</p>
+                </div>
+              </div>
+            }
+          />
         </div>
       </div>
-      
+
+      {/* Main Content Grid */}
       <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Left Column: Configuration & Diagram */}
       <div className="flex flex-col gap-8">

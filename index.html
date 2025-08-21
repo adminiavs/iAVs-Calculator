@@ -8,14 +8,133 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+      :root {
+        /* Nature-inspired color palette */
+        --color-primary-blue: #0ea5e9;
+        --color-accent-aqua: #06b6d4;
+        --color-accent-green: #10b981;
+        --color-accent-lime: #84cc16;
+        --color-accent-amber: #f59e0b;
+        --color-water-blue: #0284c7;
+        --color-earth-brown: #92400e;
+        
+        /* Enhanced dark theme */
+        --color-bg-primary: #0f172a;
+        --color-bg-secondary: #1e293b;
+        --color-bg-card: #334155;
+        --color-bg-glass: rgba(51, 65, 85, 0.8);
+        
+        /* Text colors */
+        --color-text-primary: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-text-muted: #94a3b8;
+        
+        /* Status colors */
+        --color-success: #10b981;
+        --color-warning: #f59e0b;
+        --color-danger: #ef4444;
+        
+        /* Shadows and effects */
+        --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.3);
+      }
+
       body {
         font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, var(--color-bg-primary) 0%, #1a202c 100%);
+        background-attachment: fixed;
+        position: relative;
       }
+
+      /* Subtle background texture */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+          radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
+          radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+      }
+
       h1, h2, h3, h4, h5, h6 {
-        font-family: 'Lexend', sans-serif;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: -0.025em;
       }
+
+      /* Enhanced glassmorphism effects */
+      .glass-card {
+        background: var(--color-bg-glass);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-glass);
+      }
+
+      .glass-button {
+        background: rgba(6, 182, 212, 0.1);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .glass-button:hover {
+        background: rgba(6, 182, 212, 0.2);
+        box-shadow: var(--shadow-glow);
+        transform: translateY(-1px);
+      }
+
+      /* Modern input styles */
+      .modern-input {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(203, 213, 225, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .modern-input:focus {
+        border-color: var(--color-accent-aqua);
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        outline: none;
+      }
+
+      /* Enhanced slider styles */
+      .modern-slider {
+        appearance: none;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .modern-slider::-webkit-slider-track {
+        background: rgba(203, 213, 225, 0.2);
+        height: 6px;
+        border-radius: 3px;
+      }
+
+      .modern-slider::-webkit-slider-thumb {
+        appearance: none;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: var(--color-accent-aqua);
+        box-shadow: 0 4px 8px rgba(6, 182, 212, 0.3);
+        cursor: pointer;
+        border: 2px solid white;
+        transition: all 0.2s ease;
+      }
+
+      .modern-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: var(--shadow-glow);
+      }
+
       /* Hide arrows from number input */
       .no-spinner::-webkit-outer-spin-button,
       .no-spinner::-webkit-inner-spin-button {
@@ -24,6 +143,46 @@
       }
       .no-spinner {
         -moz-appearance: textfield;
+      }
+
+      /* Animated water ripple effect */
+      @keyframes ripple {
+        0% {
+          transform: scale(0);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+
+      .ripple-effect {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .ripple-effect::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(6, 182, 212, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .ripple-effect:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      /* Smooth transitions for all interactive elements */
+      * {
+        transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
       }
     </style>
 <script type="importmap">
