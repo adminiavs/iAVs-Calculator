@@ -534,68 +534,141 @@ export default function App(): React.ReactNode {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-200 p-4 md:p-8">
+    <div className="min-h-screen text-slate-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-8">
-            <div className="flex items-center justify-center gap-4 relative">
-                <IAVSLogo />
+        <header className="text-center mb-12">
+            <div className="flex items-center justify-center gap-6 relative">
+                <div className="relative">
+                  <IAVSLogo />
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 rounded-lg blur-xl -z-10"></div>
+                </div>
                 <button 
                     onClick={handleResetToDefaults}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 glass-button text-slate-200 hover:text-white font-medium py-2.5 px-5 rounded-xl flex items-center gap-2 group"
                     aria-label="Reset to default settings"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:rotate-180 transition-transform duration-500" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm1 14a1 1 0 011-1h5.001a5.002 5.002 0 004.087-7.926 1 1 0 111.885-.666A7.002 7.002 0 015.899 15.899V18a1 1 0 11-2 0v-5a1 1 0 011-1z" clipRule="evenodd" />
                     </svg>
                     Reset
                 </button>
             </div>
-            <p className="mt-4 text-xl text-slate-400">Interactively design your Integrated Aqua-Vegeculture System.</p>
+            <div className="mt-6 space-y-2">
+              <div className="flex items-center justify-center gap-3">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-cyan-500"></div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                  <span className="text-lg font-medium bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                    Healthy Food & Saving Water
+                  </span>
+                  <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"/>
+                    <path fillRule="evenodd" d="M5.293 5.293a1 1 0 011.414 0L10 8.586l3.293-3.293a1 1 0 111.414 1.414L11.414 10l3.293 3.293a1 1 0 01-1.414 1.414L10 11.414l-3.293 3.293a1 1 0 01-1.414-1.414L8.586 10 5.293 6.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-emerald-500"></div>
+              </div>
+              <p className="text-lg text-slate-300 font-light">Interactively design your Integrated Aqua-Vegeculture System</p>
+            </div>
         </header>
 
-        <div className="mb-10 flex justify-center border-b border-slate-700">
+        <div className="mb-12 flex justify-center">
+          <div className="glass-card rounded-2xl p-2 flex gap-1">
             <button
               onClick={() => setActiveTab('tank')}
-              className={`px-4 sm:px-8 py-4 text-lg sm:text-xl font-medium transition-colors duration-300 ${activeTab === 'tank' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}
+              className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+                activeTab === 'tank' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/25' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
               aria-current={activeTab === 'tank' ? 'page' : undefined}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="6" width="18" height="12" rx="2" ry="2"/>
+                <path d="M7 12h10"/>
+              </svg>
               Tank
             </button>
             <button
               onClick={() => setActiveTab('biofilter')}
-              className={`px-4 sm:px-8 py-4 text-lg sm:text-xl font-medium transition-colors duration-300 ${activeTab === 'biofilter' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}
+              className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+                activeTab === 'biofilter' 
+                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
               aria-current={activeTab === 'biofilter' ? 'page' : undefined}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
               BioFilter
             </button>
             <button
               onClick={() => setActiveTab('liner')}
-              className={`px-4 sm:px-8 py-4 text-lg sm:text-xl font-medium transition-colors duration-300 ${activeTab === 'liner' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}
+              className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+                activeTab === 'liner' 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
               aria-current={activeTab === 'liner' ? 'page' : undefined}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <path d="M9 9h6v6H9z"/>
+              </svg>
               Liner
             </button>
             <button
               onClick={() => setActiveTab('fish')}
-              className={`px-4 sm:px-8 py-4 text-lg sm:text-xl font-medium transition-colors duration-300 ${activeTab === 'fish' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}
+              className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+                activeTab === 'fish' 
+                  ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
               aria-current={activeTab === 'fish' ? 'page' : undefined}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M6.5 12c.94-3.46 4.94-6 8.5-6s7.56 2.54 8.5 6c-.94 3.46-4.94 6-8.5 6s-7.56-2.54-8.5-6z"/>
+                <path d="M12 16v-4"/>
+                <path d="M12 8v.01"/>
+              </svg>
               Fish
             </button>
             <button
               onClick={() => setActiveTab('pump')}
-              className={`px-4 sm:px-8 py-4 text-lg sm:text-xl font-medium transition-colors duration-300 ${activeTab === 'pump' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}
+              className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+                activeTab === 'pump' 
+                  ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/25' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
               aria-current={activeTab === 'pump' ? 'page' : undefined}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
               Pump
             </button>
             <button
               onClick={() => setActiveTab('summary')}
-              className={`px-4 sm:px-8 py-4 text-lg sm:text-xl font-medium transition-colors duration-300 ${activeTab === 'summary' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}
+              className={`px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+                activeTab === 'summary' 
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
               aria-current={activeTab === 'summary' ? 'page' : undefined}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M9 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-4"/>
+                <path d="M9 11V9a2 2 0 012-2h2a2 2 0 012 2v2"/>
+              </svg>
               Summary
             </button>
+          </div>
         </div>
 
         {activeTab === 'summary' && (
@@ -629,22 +702,30 @@ export default function App(): React.ReactNode {
             {/* Left Column: Controls & Results */}
             <div className="flex flex-col gap-8">
               {/* INPUTS */}
-              <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col gap-6 ring-1 ring-white/10">
-                <div className="flex justify-between items-center border-b border-slate-700 pb-4">
-                  <h2 className="text-3xl font-semibold text-white">Tank Configuration</h2>
+              <div className="glass-card rounded-3xl p-8 flex flex-col gap-8">
+                <div className="flex justify-between items-center border-b border-white/10 pb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="6" width="18" height="12" rx="2" ry="2"/>
+                        <path d="M7 12h10"/>
+                      </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">Tank Configuration</h2>
+                  </div>
                   <div className="relative">
                     <select 
                       value={unit}
                       onChange={(e) => setUnit(e.target.value as Unit)}
-                      className="bg-slate-700 text-white font-medium text-base rounded-lg pl-4 pr-10 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+                      className="glass-button text-white font-medium text-sm rounded-xl pl-4 pr-10 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all cursor-pointer"
                       aria-label="Select unit of measurement"
                     >
                       {Object.entries(conversions).map(([key, value]) => (
-                        <option key={key} value={key}>{value.name}</option>
+                        <option key={key} value={key} className="bg-slate-800">{value.name}</option>
                       ))}
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                      <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-300">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                   </div>
                 </div>
@@ -697,11 +778,16 @@ export default function App(): React.ReactNode {
             </div>
 
             {/* Right Column: Diagram */}
-            <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col gap-6 ring-1 ring-white/10">
-               <div className="flex justify-between items-center border-b border-slate-700 pb-4">
-                  <h2 className="text-3xl font-semibold text-white">Technical Diagram</h2>
+            <div className="glass-card rounded-3xl p-8 flex flex-col gap-6">
+               <div className="flex items-center gap-3 border-b border-white/10 pb-6">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Technical Diagram</h2>
               </div>
-              <div className="flex-grow min-h-[400px] bg-slate-900 rounded-lg p-2">
+              <div className="flex-grow min-h-[400px] bg-gradient-to-br from-slate-900/50 to-slate-800/50 rounded-2xl p-4 border border-white/5">
                 <TankDiagram dimensions={dimensions} displayDimensions={displayDimensions} unit={unit} />
               </div>
             </div>

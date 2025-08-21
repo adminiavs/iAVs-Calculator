@@ -37,14 +37,20 @@ const StatCard: React.FC<StatCardProps> = ({
 
   const colorClasses = {
       cyan: 'text-cyan-400',
-      yellow: 'text-yellow-400',
-      red: 'text-red-500'
+      yellow: 'text-amber-400',
+      red: 'text-red-400'
   };
 
-  const textClass = isPrimary ? colorClasses['cyan'] : colorClasses[accentColor];
+  const gradientClasses = {
+      cyan: 'from-cyan-500/20 to-cyan-600/10',
+      yellow: 'from-amber-500/20 to-amber-600/10', 
+      red: 'from-red-500/20 to-red-600/10'
+  };
+
+  const textClass = isPrimary ? 'text-cyan-400 font-bold' : `${colorClasses[accentColor]} font-bold`;
   const containerClass = isPrimary 
-    ? "bg-gradient-to-br from-slate-800 to-slate-700/50 ring-2 ring-cyan-500/50 shadow-2xl shadow-cyan-500/10"
-    : "bg-slate-900/50";
+    ? "glass-card bg-gradient-to-br from-cyan-500/10 to-emerald-500/5 ring-1 ring-cyan-500/30 shadow-2xl shadow-cyan-500/10"
+    : `glass-card bg-gradient-to-br ${gradientClasses[accentColor]} border border-white/10`;
 
   let displayValue: string;
   if (typeof value === 'number') {
@@ -54,9 +60,9 @@ const StatCard: React.FC<StatCardProps> = ({
   }
 
   return (
-    <div className={`rounded-xl p-5 flex flex-col gap-2 ${containerClass}`}>
-      <div className="flex items-center gap-2">
-        <h3 className="text-lg font-semibold text-slate-200">{title}</h3>
+    <div className={`rounded-2xl p-6 flex flex-col gap-3 ${containerClass} group hover:scale-[1.02] transition-all duration-300`}>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">{title}</h3>
         {tooltip && (
             <InfoPopup>
                 {tooltip}
@@ -64,8 +70,12 @@ const StatCard: React.FC<StatCardProps> = ({
          )}
       </div>
       <div className="text-left">
-        <span className={`text-4xl font-bold font-mono ${textClass}`}>{displayValue}</span>
-        {unit && <span className="text-2xl text-slate-400 ml-2 font-medium">{unit}</span>}
+        <div className="flex items-baseline gap-2">
+          <span className={`text-3xl lg:text-4xl font-bold font-mono ${textClass} group-hover:scale-105 transition-transform duration-300`}>
+            {displayValue}
+          </span>
+          {unit && <span className="text-lg text-slate-400 font-medium">{unit}</span>}
+        </div>
       </div>
     </div>
   );
