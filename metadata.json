@@ -1,0 +1,5 @@
+{
+  "name": "iAVs Calculator",
+  "description": "An interactive calculator for designing and planning Integrated Aqua-Vegeculture Systems (iAVs). Calculate tank volume, liner sizes, biofilter requirements, and fish stocking rates.",
+  "requestFramePermissions": []
+}
