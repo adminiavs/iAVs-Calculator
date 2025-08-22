@@ -38,6 +38,7 @@ const DEFAULT_TANK_DIMENSIONS: TankDimensions = {
   depth: 1000,   // 1.0m in mm
   cornerRadius: 570,  // 0.57m in mm
   curveDepth: 100,
+  freeboard: 200,  // 0.2m (20cm) in mm
 };
 
 const DEFAULT_BIOFILTER_DIMENSIONS: BiofilterDimensions = {
@@ -81,15 +82,21 @@ export default function App(): React.ReactNode {
     return conversions[unit].fromMM(totalContainerHeight_mm);
   }, [unit, biofilterDimensions]);
 
-  const [headHeight, setHeadHeight] = useState(displayTotalContainerHeight);
+  const totalHeadHeight = useMemo(() => {
+    // Head height includes biofilter height plus tank freeboard
+    const tankFreeboardInDisplayUnits = conversions[unit].fromMM(dimensions.freeboard);
+    return displayTotalContainerHeight + tankFreeboardInDisplayUnits;
+  }, [displayTotalContainerHeight, dimensions.freeboard, unit]);
+
+  const [headHeight, setHeadHeight] = useState(totalHeadHeight);
   const [hasUserModifiedHeadHeight, setHasUserModifiedHeadHeight] = useState(false);
 
   useEffect(() => {
     // This effect now only updates the head height if the user hasn't manually changed it.
     if (!hasUserModifiedHeadHeight) {
-      setHeadHeight(displayTotalContainerHeight);
+      setHeadHeight(totalHeadHeight);
     }
-  }, [displayTotalContainerHeight, hasUserModifiedHeadHeight]);
+  }, [totalHeadHeight, hasUserModifiedHeadHeight]);
 
   const handleHeadHeightChange = (value: number) => {
     setHasUserModifiedHeadHeight(true);
@@ -145,6 +152,7 @@ export default function App(): React.ReactNode {
         depth: converter(dimensions.depth),
         cornerRadius: converter(dimensions.cornerRadius),
         curveDepth: dimensions.curveDepth,
+        freeboard: converter(dimensions.freeboard),
     };
   }, [dimensions, unit]);
   
@@ -456,10 +464,8 @@ export default function App(): React.ReactNode {
     
     const aspectRatio = Math.max(length, width) / Math.min(length, width);
     
-    // Red (Warning): Extremely elongated/impractical (AR > 5.0)
-    if (aspectRatio > 5.0) return 'red';
-    
-    // Yellow (Caution): Too square (AR < 1.2) or too elongated (AR > 3.0)
+    // Yellow (Caution): Too square (AR < 1.2) or elongated (AR > 3.0)
+    // Note: Long, narrow tanks (AR > 5.0) are actually efficient for commercial operations
     if (aspectRatio < 1.2 || aspectRatio > 3.0) return 'yellow';
     
     // Optimal range: 1.2 <= AR <= 3.0
@@ -630,12 +636,10 @@ export default function App(): React.ReactNode {
     if (aspectRatioColor !== 'cyan') {
       const aspectRatio = Math.max(dimensions.length, dimensions.width) / Math.min(dimensions.length, dimensions.width);
       
-      if (aspectRatioColor === 'red') {
-        allWarnings.push(`Warning: This aspect ratio (${aspectRatio.toFixed(2)}:1) is highly impractical and may lead to severe circulation, aeration, and structural issues. Please adjust dimensions.`);
-      } else if (aspectRatio < 1.2) {
+      if (aspectRatio < 1.2) {
         allWarnings.push(`Consider a more rectangular shape for optimal design. Current aspect ratio (${aspectRatio.toFixed(2)}:1) is close to square. Aim for Length-to-Width ratio > 1.2.`);
       } else {
-        allWarnings.push(`Caution: Very elongated tanks may have circulation or structural challenges. Current aspect ratio (${aspectRatio.toFixed(2)}:1) exceeds 3.0:1. Consider a wider design.`);
+        allWarnings.push(`Note: Elongated tanks (AR > 3.0) can be efficient for commercial operations with proper design. Current aspect ratio (${aspectRatio.toFixed(2)}:1).`);
       }
     }
     if (biofilterCalculations.sandVolumeColor === 'red') {
@@ -881,6 +885,16 @@ export default function App(): React.ReactNode {
                       unit="%"
                       accentColor={curveDepthColor}
                       tooltip="A catenary shape increases side wall stability and naturally directs solid waste to a central point for easy removal, improving water quality."
+                    />
+                    <InputSlider
+                      label="Freeboard"
+                      value={displayDimensions.freeboard}
+                      onChange={(v) => handleDimensionChange('freeboard', v)}
+                      min={0.1} max={0.5}
+                      step={0.01}
+                      sliderStep={0.05}
+                      unit="m"
+                      tooltip="Freeboard is the distance from the top of the water level to the top of the fish tank. This affects liner size and pump head height calculations."
                     />
                   </div>
                 </div>

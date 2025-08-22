@@ -251,11 +251,10 @@ The calculator implements a comprehensive warning system with three levels:
 
 - **🟢 Cyan (Optimal)**: 1.2 ≤ AR ≤ 3.0
   - Sweet spot for rectangular tanks with good circulation
-- **🟡 Yellow (Caution)**: AR < 1.2 (too square) OR AR > 3.0 (too elongated)
+- **🟡 Yellow (Caution)**: AR < 1.2 (too square) OR AR > 3.0 (elongated)
   - Square tanks may be less space-efficient
-  - Elongated tanks may have circulation issues
-- **🔴 Red (Warning)**: AR > 5.0
-  - Highly impractical design with severe circulation and structural challenges
+  - Elongated tanks (AR > 3.0) can be efficient for commercial operations with proper design
+  - Long, narrow "canal" designs are actually optimal for large-scale aquaculture
 
 #### 2. Depth Warnings
 **Formula**: Based on Shortest Horizontal Dimension (SHD) = min(Length, Width)

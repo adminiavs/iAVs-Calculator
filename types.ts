@@ -5,6 +5,7 @@ export interface TankDimensions {
   depth: number;
   cornerRadius: number;
   curveDepth: number; // 0 = flat, 100 = deep curve
+  freeboard: number; // distance from water level to top of tank in mm
 }
 
 export interface CalculationResult {

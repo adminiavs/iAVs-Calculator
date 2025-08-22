@@ -50,15 +50,16 @@ export function calculateTankVolume(dimensions: TankDimensions): CalculationResu
  * @returns Object containing the required liner length and width in mm
  */
 export function calculateLinerDimensions(dimensions: TankDimensions, overlapAmount: number = 0): { length: number; width: number } {
-  const { length, width, depth, cornerRadius, curveDepth } = dimensions;
+  const { length, width, depth, cornerRadius, curveDepth, freeboard } = dimensions;
 
   // Ensure corner radius is not more than half the smallest dimension
   const maxRadius = Math.min(length, width) / 2;
   const r = Math.min(cornerRadius, maxRadius);
 
-  // Base rectangular liner size (simple box)
-  const baseLength = length + (2 * depth);
-  const baseWidth = width + (2 * depth);
+  // Base rectangular liner size (simple box) - includes freeboard
+  const totalDepth = depth + freeboard;
+  const baseLength = length + (2 * totalDepth);
+  const baseWidth = width + (2 * totalDepth);
 
   // Additional material needed for rounded corners
   // The liner needs to wrap around the curved corners, which requires extra material

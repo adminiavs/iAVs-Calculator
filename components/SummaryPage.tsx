@@ -114,6 +114,7 @@ export default function SummaryPage({
                 <SummaryItem label="Length" value={`${displayDimensions.length.toFixed(precision)} ${unit}`} />
                 <SummaryItem label="Width" value={`${displayDimensions.width.toFixed(precision)} ${unit}`} />
                 <SummaryItem label="Max Depth" value={`${displayDimensions.depth.toFixed(precision)} ${unit}`} />
+                <SummaryItem label="Freeboard" value={`${displayDimensions.freeboard.toFixed(precision)} ${unit}`} />
                 <SummaryItem label="Bottom Profile" value={`${displayDimensions.curveDepth}% Catenary`} />
                 <SummaryItem label="Calculated Volume" value={`${displayResult.volumeLiters.toFixed(0)} ${unitConfig.vol}`} />
               </Section>

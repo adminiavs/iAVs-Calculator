@@ -3,7 +3,7 @@ import { Unit } from '../types';
 
 interface PdfData {
     unit: Unit;
-    displayDimensions: { length: number; width: number; depth: number; curveDepth: number; };
+    displayDimensions: { length: number; width: number; depth: number; curveDepth: number; freeboard: number; };
     displayResult: { volumeLiters: number; };
     unitConfig: { vol: string; };
     displayBiofilterDimensions: { length: number; width: number; };
@@ -119,6 +119,7 @@ export function generateSummaryPdf(data: PdfData): void {
     addLineItem('Length', `${displayDimensions.length.toFixed(precision)} ${unit}`);
     addLineItem('Width', `${displayDimensions.width.toFixed(precision)} ${unit}`);
     addLineItem('Max Depth', `${displayDimensions.depth.toFixed(precision)} ${unit}`);
+    addLineItem('Freeboard', `${displayDimensions.freeboard.toFixed(precision)} ${unit}`);
     addLineItem('Bottom Profile', `${displayDimensions.curveDepth}% Catenary`);
     addLineItem('Calculated Volume', `${displayResult.volumeLiters.toFixed(0)} ${unitConfig.vol}`);
     y += 5;
