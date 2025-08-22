@@ -270,12 +270,17 @@ The calculator implements a comprehensive warning system with three levels:
 #### 3. Corner Radius Warnings
 **Formula**: Based on Shortest Horizontal Dimension (SHD) = min(Length, Width)
 
-- **🟢 Cyan (Optimal)**: 0.05 × SHD ≤ Radius ≤ 0.5 × SHD
-  - Includes perfect circles (Radius = 0.5 × SHD) as optimal designs
-- **🟡 Yellow (Caution)**: Radius < 0.05 × SHD
-  - Very small radii create sharp corners with structural weakness
-- **🔴 Red (Warning)**: Radius > 0.5 × SHD
-  - Geometrically impossible - overlapping circles
+- **🔴 Red (Danger / Warning)**: Two critical failure conditions
+  - **Condition 1**: Radius < 0.05 × SHD (Critically sharp corners)
+    - Creates major stress concentrators and structural weak points
+  - **Condition 2**: Radius > 0.5 × SHD (Geometrically impossible)
+    - Overlapping circles create impossible geometry
+- **🟡 Yellow (Caution)**: 0.05 × SHD ≤ Radius < 0.25 × SHD
+  - Functional but sub-optimal design with tight corners
+  - Better than sharp corners but lacks structural benefits of generous curves
+- **🟢 Cyan (Optimal)**: 0.25 × SHD ≤ Radius ≤ 0.5 × SHD
+  - Generous, strong curves that distribute stress excellently
+  - Includes semicircular ends (Radius = 0.5 × SHD) as perfectly optimal design
 
 #### 4. Bottom Profile Warnings
 **Formula**: Curve Depth Percentage (0-100%)

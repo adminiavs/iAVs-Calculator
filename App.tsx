@@ -425,15 +425,20 @@ export default function App(): React.ReactNode {
     const shortestSide = Math.min(dimensions.length, dimensions.width);
     if (shortestSide === 0) return 'cyan';
     
-    // Red (ERROR/IMPOSSIBLE GEOMETRY): Corner radius cannot exceed min(Length, Width) / 2
+    // 🔴 RED (Danger / Warning): Two critical failure conditions
+    // Condition 1: Critically sharp corners (Radius < 0.05 * SHD)
+    // Condition 2: Geometrically impossible (Radius > 0.5 * SHD)
+    const redThreshold = shortestSide * 0.05;
     const maxRadius = shortestSide / 2;
-    if (r > maxRadius) return 'red';
+    if (r < redThreshold || r > maxRadius) return 'red';
     
-    // Yellow (CAUTION): Corner radius too small (less than 20% of shortest side)
-    const yellowThreshold = shortestSide * 0.2;
+    // 🟡 YELLOW (Caution): Functional but not structurally ideal
+    // Radius between 5% and 25% of shortest side
+    const yellowThreshold = shortestSide * 0.25;
     if (r < yellowThreshold) return 'yellow';
     
-    // Optimal range: Between 20% and 50% of shortest side (including perfect circle)
+    // 🟢 CYAN (Optimal): Well-designed, structurally sound tank
+    // Radius between 25% and 50% of shortest side (includes semicircular ends)
     return 'cyan';
   }, [dimensions.cornerRadius, dimensions.length, dimensions.width]);
   
@@ -465,10 +470,12 @@ export default function App(): React.ReactNode {
 
   const optimalRadiusTooltip = useMemo(() => {
     const shortestSide = Math.min(dimensions.length, dimensions.width);
-    const yellowThreshold = shortestSide * 0.2;
+    const redThreshold = shortestSide * 0.05;
+    const yellowThreshold = shortestSide * 0.25;
     const maxRadius = shortestSide / 2;
     
     const converter = unitConversions[unit].fromMM;
+    const redDisplay = converter(redThreshold);
     const yellowDisplay = converter(yellowThreshold);
     const maxDisplay = converter(maxRadius);
     const precision = (unit === 'm' || unit === 'ft') ? 2 : 1;
@@ -478,12 +485,12 @@ export default function App(): React.ReactNode {
         <p className="font-bold text-white mb-1">Corner Radius Guidelines</p>
         <p className="mb-1">Based on your tank's shortest side ({converter(shortestSide).toFixed(precision)} {unit}):</p>
         <ul className="text-sm space-y-1">
-          <li><span className="text-cyan-300">● Cyan:</span> Radius ≥ {yellowDisplay.toFixed(precision)} {unit} (optimal)</li>
-          <li><span className="text-yellow-300">● Yellow:</span> Radius &lt; {yellowDisplay.toFixed(precision)} {unit} (caution)</li>
-          <li><span className="text-red-300">● Red:</span> Radius &gt; {maxDisplay.toFixed(precision)} {unit} (impossible)</li>
+          <li><span className="text-cyan-300">● Cyan (Optimal):</span> Radius ≥ {yellowDisplay.toFixed(precision)} {unit}</li>
+          <li><span className="text-yellow-300">● Yellow (Caution):</span> {redDisplay.toFixed(precision)} {unit} ≤ Radius &lt; {yellowDisplay.toFixed(precision)} {unit}</li>
+          <li><span className="text-red-300">● Red (Danger):</span> Radius &lt; {redDisplay.toFixed(precision)} {unit} OR Radius &gt; {maxDisplay.toFixed(precision)} {unit}</li>
         </ul>
         <p className="text-xs text-slate-400 mt-2">
-          Optimal range includes perfect circles. Very small radii may reduce structural stability.
+          Optimal range includes semicircular ends. Sharp corners (&lt;5%) are structural weak points.
         </p>
       </div>
     );
@@ -555,12 +562,17 @@ export default function App(): React.ReactNode {
     }
     if (cornerRadiusColor !== 'cyan') {
       const shortestSide = Math.min(dimensions.length, dimensions.width);
+      const redThreshold = shortestSide * 0.05;
       const maxRadius = shortestSide / 2;
       
       if (cornerRadiusColor === 'red') {
-        allWarnings.push(`Error: Corner radius cannot exceed half of the shortest side. Adjust radius or tank dimensions. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) exceeds the maximum allowed value of ${(maxRadius / 1000).toFixed(2)}m.`);
+        if (dimensions.cornerRadius > maxRadius) {
+          allWarnings.push(`Error: Corner radius cannot exceed half of the shortest side. Adjust radius or tank dimensions. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) exceeds the maximum allowed value of ${(maxRadius / 1000).toFixed(2)}m.`);
+        } else {
+          allWarnings.push(`Critical Warning: Corner radius is extremely sharp (${(dimensions.cornerRadius / 1000).toFixed(2)}m), less than 5% of the shortest side. This creates a major stress concentrator and is the weakest point in the tank structure. Increase radius to at least ${(redThreshold / 1000).toFixed(2)}m for safety.`);
+        }
       } else {
-        allWarnings.push(`Caution: Very small corner radius may reduce structural stability or make lining difficult. Current radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) is less than 20% of the shortest side.`);
+        allWarnings.push(`Caution: Corner radius (${(dimensions.cornerRadius / 1000).toFixed(2)}m) is between 5% and 25% of the shortest side. While functional, a larger radius would provide better structural stability and stress distribution. Consider increasing to at least 25% of the shortest side for optimal design.`);
       }
     }
     if (aspectRatioColor !== 'cyan') {
