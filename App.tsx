@@ -348,14 +348,63 @@ export default function App(): React.ReactNode {
     }
     // If the ratio is between 0.98 and 1.0 (inclusive), the multiplier remains 1.0, and no message is shown. This is the tolerance band.
 
-    const adjustedMin = BASE_STOCKING_MIN * stockingMultiplier;
-    const adjustedMax = BASE_STOCKING_MAX * stockingMultiplier;
+    // Calculate Design Efficiency Factors
+    const curvePercent = dimensions.curveDepth; // Bottom Profile value (0-100)
+    const radius = dimensions.cornerRadius; // Corner Radius in mm
+    const SHD = Math.min(dimensions.length, dimensions.width); // Smallest horizontal dimension in mm
+
+    // Step 1: Calculate bottomProfileEfficiency
+    let bottomProfileEfficiency = 1.0;
+    if (curvePercent >= 60) {
+      // Optimal/Cyan: The design is ideal for solids removal (widened range)
+      bottomProfileEfficiency = 1.0;
+    } else if (curvePercent <= 25) {
+      // Danger/Red: The design is critically inefficient, leading to sludge buildup (reduced penalty)
+      bottomProfileEfficiency = 0.8; // 20% penalty (was 40%)
+    } else {
+      // Caution/Yellow: The efficiency scales linearly between the "danger" and "optimal" states (gentler slope)
+      bottomProfileEfficiency = 0.8 + ((curvePercent - 25) * (0.2 / 35));
+    }
+
+    // Step 2: Calculate cornerRadiusEfficiency
+    let cornerRadiusEfficiency = 1.0;
+    if (radius >= 0.25 * SHD) {
+      // Optimal/Cyan: The design has excellent flow dynamics
+      cornerRadiusEfficiency = 1.0;
+    } else if (radius < 0.05 * SHD) {
+      // Danger/Red: The design has critical dead zones and poor flow
+      cornerRadiusEfficiency = 0.7; // 30% penalty
+    } else {
+      // Caution/Yellow: The efficiency scales linearly between the "danger" and "optimal" states
+      cornerRadiusEfficiency = 0.7 + ((radius - (0.05 * SHD)) * (0.3 / (0.2 * SHD)));
+    }
+
+    // Step 3: Calculate totalDesignEfficiency
+    const totalDesignEfficiency = bottomProfileEfficiency * cornerRadiusEfficiency;
+
+    // Apply the totalDesignEfficiency to the final stocking calculation
+    const finalStockingMultiplier = stockingMultiplier * totalDesignEfficiency;
+
+    // Add design efficiency message if there's a penalty
+    let designEfficiencyMessage = "";
+    if (totalDesignEfficiency < 1.0) {
+      const penaltyPercent = Math.round((1 - totalDesignEfficiency) * 100);
+      designEfficiencyMessage = ` Note: The rate has been reduced by ${penaltyPercent}% due to design inefficiencies that compromise water flow and solids removal.`;
+    }
+
+    const adjustedMin = BASE_STOCKING_MIN * finalStockingMultiplier;
+    const adjustedMax = BASE_STOCKING_MAX * finalStockingMultiplier;
 
     const minStock = Math.round(adjustedMin * tankVolume_m3);
     const maxStock = Math.round(adjustedMax * tankVolume_m3);
     
-    return { minStock, maxStock, adjustmentMessage: message };
-  }, [result.volumeLiters, biofilterCalculations.surfaceAreaM2]);
+    return { 
+      minStock, 
+      maxStock, 
+      adjustmentMessage: message + designEfficiencyMessage,
+      designEfficiency: totalDesignEfficiency
+    };
+  }, [result.volumeLiters, biofilterCalculations.surfaceAreaM2, dimensions.curveDepth, dimensions.cornerRadius, dimensions.length, dimensions.width]);
   
   const pumpLphRange = useMemo(() => {
     // New logic: Pump 25-30% of the volume in 15 minutes.
@@ -416,7 +465,7 @@ export default function App(): React.ReactNode {
   
   const curveDepthColor = useMemo(() => {
     if (dimensions.curveDepth <= 25) return 'red';
-    if (dimensions.curveDepth <= 75) return 'yellow';
+    if (dimensions.curveDepth <= 60) return 'yellow';
     return 'cyan';
   }, [dimensions.curveDepth]);
 
@@ -858,6 +907,7 @@ export default function App(): React.ReactNode {
             minStock={fishStockingCalculation.minStock}
             maxStock={fishStockingCalculation.maxStock}
             adjustmentMessage={fishStockingCalculation.adjustmentMessage}
+            designEfficiency={fishStockingCalculation.designEfficiency}
             isTankTooSmall={result.volumeLiters < 500}
             tankVolumeLiters={result.volumeLiters}
             biofilterVolumeLiters={biofilterCalculations.totalBiofilterVolumeLiters}

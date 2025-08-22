@@ -10,7 +10,7 @@ interface PdfData {
     biofilterCalculations: { surfaceAreaM2: number; sandWeightTonnes: number; sandWeightKg: number; };
     linerDimensions: { length: number; width: number; };
     biofilterLinerDimensions: { length: number; width: number; };
-    fishStocking: { minStock: number; maxStock: number; };
+    fishStocking: { minStock: number; maxStock: number; designEfficiency?: number };
     warnings: string[];
     pumpLphRange: { min: number; max: number; };
     headHeight: number;
@@ -147,6 +147,9 @@ export function generateSummaryPdf(data: PdfData): void {
     const isTankTooSmall = displayResult.volumeLiters < 500 && (unitConfig.vol === "Liters") || displayResult.volumeLiters < 132 && (unitConfig.vol === "Gallons");
     addLineItem('Recommended Stocking Rate', isTankTooSmall ? "0 Fingerlings" : `${fishStocking.minStock} - ${fishStocking.maxStock} Fingerlings`);
     addLineItem('Basis', 'Fingerlings (15g each)');
+    if (fishStocking.designEfficiency !== undefined && fishStocking.designEfficiency < 1.0) {
+        addLineItem('Design Efficiency Factor', `${Math.round(fishStocking.designEfficiency * 100)}%`);
+    }
 
 
     doc.save('iAVs-Summary.pdf');

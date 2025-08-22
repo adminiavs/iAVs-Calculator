@@ -92,7 +92,7 @@ The calculator features six comprehensive modules, each designed to help you bui
 <summary><strong>📊 System Summary</strong></summary>
 <br>
 <img src="images/iavs calc summary page.png" alt="Summary Page" width="800" />
-<p>Get a complete overview of your iAVs system with all specifications, warnings, and the ability to generate detailed PDF reports.</p>
+<p>Get a complete overview of your iAVs with all specifications, warnings, and the ability to generate detailed PDF reports.</p>
 </details>
 
 ### Key Features
@@ -100,7 +100,7 @@ The calculator features six comprehensive modules, each designed to help you bui
 #### 🐟 **Fish Tank Design**
 - **Catenary Shape**: Calculates optimal tank dimensions with rounded corners and curved bottom
 - **Volume Calculation**: Precise volume calculations accounting for the unique tank geometry
-- **Surface Area**: Determines the top surface area for proper fish stocking density
+- **Surface Area**: Determines the top surface area for proper planting density
 - **Visual Diagrams**: Interactive diagrams showing tank shape and dimensions
 
 #### 🌱 **Biofilter Calculations**
@@ -348,12 +348,55 @@ sandWeight = sandVolume × 1.6
 // Base stocking rate
 baseStockingRate = 80-100 fingerlings per 1000 liters
 
-// Adjusted for biofilter efficiency
-if (biofilterRatio < 1.0) {
-  adjustmentFactor = biofilterRatio
-  adjustedStocking = baseStockingRate × adjustmentFactor
+// Biofilter adjustment factor
+if (biofilterRatio < 0.98) {
+  biofilterAdjustmentFactor = Math.pow(biofilterRatio, 1.5)
+} else if (biofilterRatio > 1.0) {
+  const bonusRatio = biofilterRatio - 1.0
+  const diminishingBonus = Math.sqrt(bonusRatio) / 2
+  biofilterAdjustmentFactor = 1.0 + diminishingBonus
+  // Safety cap at 1.25 (25% bonus)
+  if (biofilterAdjustmentFactor > 1.25) biofilterAdjustmentFactor = 1.25
+} else {
+  biofilterAdjustmentFactor = 1.0
 }
+
+// Design Efficiency Factor (NEW)
+// Bottom Profile Efficiency
+if (curvePercent >= 60) {
+  bottomProfileEfficiency = 1.0  // Optimal catenary (widened range)
+} else if (curvePercent <= 25) {
+  bottomProfileEfficiency = 0.8  // 20% penalty for flat bottom (reduced from 40%)
+} else {
+  // Linear interpolation between 25% and 60%
+  bottomProfileEfficiency = 0.8 + ((curvePercent - 25) * (0.2 / 35))
+}
+
+// Corner Radius Efficiency
+if (radius >= 0.25 * SHD) {
+  cornerRadiusEfficiency = 1.0  // Optimal rounded corners
+} else if (radius < 0.05 * SHD) {
+  cornerRadiusEfficiency = 0.7  // 30% penalty for sharp corners
+} else {
+  // Linear interpolation between 5% and 25% of SHD
+  cornerRadiusEfficiency = 0.7 + ((radius - (0.05 * SHD)) * (0.3 / (0.2 * SHD)))
+}
+
+// Total Design Efficiency
+totalDesignEfficiency = bottomProfileEfficiency × cornerRadiusEfficiency
+
+// Final stocking rate
+finalStockingRate = baseStockingRate × biofilterAdjustmentFactor × totalDesignEfficiency
 ```
+
+**Design Efficiency Factor Explanation:**
+The calculator now includes a Design Efficiency Factor that penalizes tank designs with poor hydraulic characteristics:
+
+- **Bottom Profile**: Flat bottoms (≤25% catenary) receive a 20% penalty due to poor solids removal
+- **Corner Radius**: Sharp corners (<5% of smallest dimension) receive a 30% penalty due to dead zones
+- **Combined Effect**: Both factors multiply together, ensuring realistic stocking recommendations
+
+This prevents users from gaining higher fish recommendations by designing inefficient tanks that simply increase raw volume.
 
 #### Liner Calculations
 ```typescript
@@ -412,9 +455,9 @@ This calculator is designed to help the iAVs community build better systems. Con
 ## License
 
 This project is available under the **iAVs Attribution License**, which requires:
-- Attribution to "iAVs" in any use or distribution
+- Attribution to "Integrated Aqua Vegeculture System (iAVs)" in any use or distribution
 - A clearly visible link to https://iavs.info/
-- Credit format: "Powered by iAVs - https://iavs.info/"
+- Credit format: "Integrated Aqua Vegeculture System (iAVs) - https://iavs.info/"
 
 This ensures proper recognition of the iAVs system and helps users find official resources.
 

@@ -14,7 +14,7 @@ interface SummaryPageProps {
   linerDimensions: any;
   biofilterLinerDimensions: any;
   combinedLinerSheet: { length: number; width: number; };
-  fishStocking: { minStock: number; maxStock: number; adjustmentMessage: string };
+  fishStocking: { minStock: number; maxStock: number; adjustmentMessage: string; designEfficiency?: number };
   warnings: string[];
   onSaveAsPdf: () => void;
   isSavingPdf: boolean;
@@ -135,6 +135,9 @@ export default function SummaryPage({
               <Section title="Fish Stocking">
                  <SummaryItem label="Recommended Stocking Rate" value={isTankTooSmall ? "0 Fingerlings" : `${minStock} - ${maxStock} Fingerlings`} />
                  <SummaryItem label="Basis" value="Fingerlings (15g each)" />
+                 {fishStocking.designEfficiency !== undefined && fishStocking.designEfficiency < 1.0 && (
+                   <SummaryItem label="Design Efficiency Factor" value={`${Math.round(fishStocking.designEfficiency * 100)}%`} />
+                 )}
               </Section>
         </div>
     </div>

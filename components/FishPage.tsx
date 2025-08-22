@@ -5,12 +5,13 @@ interface FishPageProps {
   minStock: number;
   maxStock: number;
   adjustmentMessage: string;
+  designEfficiency?: number;
   isTankTooSmall: boolean;
   tankVolumeLiters: number;
   biofilterVolumeLiters: number;
 }
 
-export default function FishPage({ minStock, maxStock, adjustmentMessage, isTankTooSmall, tankVolumeLiters, biofilterVolumeLiters }: FishPageProps): React.ReactNode {
+export default function FishPage({ minStock, maxStock, adjustmentMessage, designEfficiency, isTankTooSmall, tankVolumeLiters, biofilterVolumeLiters }: FishPageProps): React.ReactNode {
   
   const finalMinStock = isTankTooSmall ? 0 : minStock;
   const finalMaxStock = isTankTooSmall ? 0 : maxStock;
@@ -50,6 +51,17 @@ export default function FishPage({ minStock, maxStock, adjustmentMessage, isTank
                <p className="font-semibold text-yellow-300">
                   {adjustmentMessage}
                </p>
+            )}
+            {designEfficiency !== undefined && designEfficiency < 1.0 && (
+               <div className="bg-slate-700/50 rounded-lg p-4 mt-4">
+                  <p className="text-slate-300 text-sm">
+                     <span className="font-semibold text-yellow-300">Design Efficiency Factor:</span> {Math.round(designEfficiency * 100)}%
+                  </p>
+                  <p className="text-slate-400 text-xs mt-1">
+                     This factor accounts for how well your tank design promotes water flow and solids removal. 
+                     Poor designs (flat bottoms, sharp corners) receive penalties to ensure realistic stocking recommendations.
+                  </p>
+               </div>
             )}
             {isTankTooSmall && (
                <p className="font-semibold text-red-400">
