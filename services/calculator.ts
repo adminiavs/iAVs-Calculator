@@ -1,7 +1,7 @@
 import { TankDimensions, CalculationResult } from '../types';
 
 /**
- * Calculates the volume and surface area of a custom-shaped fish tank.
+ * Calculates the volume and surface area of a custom-shaped fish tank using Standard Parabolic Volume Calculation.
  * The tank is a rectangle with rounded corners and a variable-depth curved bottom.
  *
  * @param dimensions - The length, width, depth, corner radius, and curve depth of the tank.
@@ -21,16 +21,29 @@ export function calculateTankVolume(dimensions: TankDimensions): CalculationResu
   const r_m = r / 1000;
 
   // Calculate the area of the top surface (rectangle with rounded corners)
-  // Area = (Total Rectangle) - (4 * Corner Square) + (1 * Circle from 4 quarter-circles)
-  const topSurfaceAreaM2 = (l_m * w_m) - (4 * r_m * r_m) + (Math.PI * r_m * r_m);
+  // Standard formula: Area = (Length * Width) - (4 - π) * Radius^2
+  const topSurfaceAreaM2 = (l_m * w_m) - (4 - Math.PI) * (r_m * r_m);
 
-  // The 'U' shape of the bottom is controlled by curveDepth.
-  // 0% curveDepth = flat bottom (factor = 1).
-  // 100% curveDepth = deep catenary bottom (approximated with a factor of 0.75).
-  // We linearly interpolate between these two factors. A catenary is fuller than a parabola (2/3).
-  const curveCorrectionFactor = 1 - (curveDepth / 100) * (1 - 0.75);
+  // Standard Parabolic Volume Calculation
+  // Calculate the cross-sectional area components:
+  // 1. Area of the rectangular part = Width × Straight Wall Height
+  // 2. Area of the parabolic part = (2/3) × Width × Curved Bottom Depth
   
-  const volumeM3 = topSurfaceAreaM2 * d_m * curveCorrectionFactor;
+  // Straight wall height is the depth minus the curved bottom depth
+  const curvedBottomDepthRatio = curveDepth / 100; // Convert percentage to decimal
+  const curvedBottomDepth_m = d_m * curvedBottomDepthRatio;
+  const straightWallHeight_m = d_m - curvedBottomDepth_m;
+  
+  // Calculate cross-sectional area components
+  const rectangularArea = w_m * straightWallHeight_m;
+  const parabolicArea = (2/3) * w_m * curvedBottomDepth_m;
+  const totalCrossSectionalArea = rectangularArea + parabolicArea;
+  
+  // Calculate average depth from cross-section
+  const averageDepth_m = totalCrossSectionalArea / w_m;
+  
+  // Standard formula: Total Volume = Top Surface Area × Average Depth
+  const volumeM3 = topSurfaceAreaM2 * averageDepth_m;
 
   // Convert volume from cubic meters to liters (1 m^3 = 1000 L)
   const volumeLiters = volumeM3 * 1000;
