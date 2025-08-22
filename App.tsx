@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { TankDimensions, CalculationResult, Unit, BiofilterDimensions } from './types';
-import { calculateTankVolume } from './services/calculator';
+import { calculateTankVolume, calculateLinerDimensions, calculateBiofilterLinerDimensions } from './services/calculator';
 
 import { generateSummaryPdf } from './services/pdfService';
 import InputSlider from './components/InputSlider';
@@ -230,23 +230,22 @@ export default function App(): React.ReactNode {
   }, [biofilterDimensions, result.volumeLiters]);
   
   const linerDimensions = useMemo(() => {
-    const { length, width, depth } = dimensions; // All in mm
     let overlapMm = 0;
     if (includeFishTankLinerOverlap) {
         overlapMm = conversions[unit].toMM(fishTankLinerOverlapAmount);
     }
-    const requiredLengthMm = length + (2 * depth) + overlapMm;
-    const requiredWidthMm = width + (2 * depth) + overlapMm;
-
+    
+    // Use the new accurate liner calculation function
+    const linerDimensionsMm = calculateLinerDimensions(dimensions, overlapMm);
+    
     const converter = conversions[unit].fromMM;
     return {
-        length: converter(requiredLengthMm),
-        width: converter(requiredWidthMm),
+        length: converter(linerDimensionsMm.length),
+        width: converter(linerDimensionsMm.width),
     };
   }, [dimensions, unit, includeFishTankLinerOverlap, fishTankLinerOverlapAmount]);
 
   const biofilterLinerDimensions = useMemo(() => {
-    const { width, length } = biofilterDimensions;
     const totalContainerDepth_mm = biofilterCalculations.totalContainerHeightMm;
 
     let overlapMm = 0;
@@ -254,13 +253,17 @@ export default function App(): React.ReactNode {
         overlapMm = conversions[unit].toMM(biofilterLinerOverlapAmount);
     }
 
-    const requiredLengthMm = length + (2 * totalContainerDepth_mm) + overlapMm;
-    const requiredWidthMm = width + (2 * totalContainerDepth_mm) + overlapMm;
+    // Use the new accurate biofilter liner calculation function
+    const biofilterLinerDimensionsMm = calculateBiofilterLinerDimensions(
+      biofilterDimensions,
+      totalContainerDepth_mm,
+      overlapMm
+    );
 
     const converter = conversions[unit].fromMM;
     return {
-        length: converter(requiredLengthMm),
-        width: converter(requiredWidthMm),
+        length: converter(biofilterLinerDimensionsMm.length),
+        width: converter(biofilterLinerDimensionsMm.width),
     };
   }, [biofilterDimensions, biofilterCalculations.totalContainerHeightMm, unit, includeBiofilterLinerOverlap, biofilterLinerOverlapAmount]);
 

@@ -398,15 +398,43 @@ The calculator now includes a Design Efficiency Factor that penalizes tank desig
 
 This prevents users from gaining higher fish recommendations by designing inefficient tanks that simply increase raw volume.
 
-#### Liner Calculations
+#### Liner Calculations (Updated for Rounded Corners and Curved Profiles)
 ```typescript
-// Tank liner (with overlap)
-tankLinerLength = length + (2 × depth) + overlap
-tankLinerWidth = width + (2 × depth) + overlap
+// Tank liner with rounded corners and curved bottom
+baseLength = length + (2 × depth)
+baseWidth = width + (2 × depth)
 
-// Biofilter liner
-biofilterLinerLength = length + (2 × totalHeight) + overlap
-biofilterLinerWidth = width + (2 × totalHeight) + overlap
+// Corner extra material (4 corners)
+cornerExtra = 4 × (π/2 × radius)
+
+// Curved bottom extra material
+curveExtraFactor = 1 + (curveDepth / 100) × 0.15
+curveExtra = depth × (curveExtraFactor - 1)
+
+// Total extra material
+totalExtra = cornerExtra + curveExtra + overlap
+
+// Distribute proportionally
+lengthExtra = totalExtra × (length / (length + width))
+widthExtra = totalExtra × (width / (length + width))
+
+finalLength = baseLength + lengthExtra
+finalWidth = baseWidth + widthExtra
+
+// Biofilter liner with sloped bottom
+baseLength = length + (2 × totalHeight)
+baseWidth = width + (2 × totalHeight)
+
+// Slope extra material
+slopeDepthIncrease = length × (slope / 100)
+slopeExtra = √(length² + slopeDepthIncrease²) - length
+
+// Distribute proportionally
+lengthExtra = slopeExtra × (length / (length + width))
+widthExtra = slopeExtra × (width / (length + width))
+
+finalLength = baseLength + lengthExtra
+finalWidth = baseWidth + widthExtra
 ```
 
 #### Pump Specifications
