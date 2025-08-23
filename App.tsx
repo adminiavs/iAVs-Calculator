@@ -45,7 +45,7 @@ const DEFAULT_BIOFILTER_DIMENSIONS: BiofilterDimensions = {
   width: 1200,   // 1.2m in mm
   length: 5000,  // 5.0m in mm
   shallowDepth: 300,  // 0.3m in mm
-  freeboard: 0,
+  freeboard: 50,  // 0.05m (5cm) in mm
   slope: 2,
 };
 
@@ -838,7 +838,7 @@ export default function App(): React.ReactNode {
                       sliderStep={sliderConfig.dim.sliderStep} 
                       unit={unit}
                       accentColor={aspectRatioColor}
-                      tooltip={aspectRatioTooltip}
+                      tooltip="Shape: The recommended shape for an iAVs fish tank, when viewed from above, is rectangular with rounded corners. This design minimizes dead zones where water flow might stagnate, promoting efficient movement of solids and maintaining water quality."
                     />
                     <InputSlider 
                       label="Width" 
@@ -850,7 +850,6 @@ export default function App(): React.ReactNode {
                       sliderStep={sliderConfig.dim.sliderStep} 
                       unit={unit}
                       accentColor={aspectRatioColor}
-                      tooltip={aspectRatioTooltip}
                     />
                     <InputSlider 
                       label="Max Depth" 
@@ -876,7 +875,7 @@ export default function App(): React.ReactNode {
                       tooltip={optimalRadiusTooltip}
                     />
                      <InputSlider
-                      label="Bottom Profile"
+                      label="Bottom Contour"
                       value={dimensions.curveDepth}
                       onChange={(v) => handleDimensionChange('curveDepth', v)}
                       min={0} max={100}
@@ -884,7 +883,7 @@ export default function App(): React.ReactNode {
                       sliderStep={5}
                       unit="%"
                       accentColor={curveDepthColor}
-                      tooltip="A catenary shape increases side wall stability and naturally directs solid waste to a central point for easy removal, improving water quality."
+                      tooltip="Bottom Contour: The bottom of the fish tank should have a U-shaped or catenary-shaped contour when viewed from the side. This design facilitates the natural settling of solid waste towards a central low point, which helps in efficient collection and transfer of fish effluent to the biofilters and also increases stability of the side walls."
                     />
                     <InputSlider
                       label="Freeboard"

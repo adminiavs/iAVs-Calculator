@@ -2,6 +2,7 @@ import React from 'react';
 import { Unit } from '../types';
 import StatCard from './StatCard';
 import StyledNumberInput from './StyledNumberInput';
+import InfoPopup from './InfoPopup';
 
 interface LinerCalculatorProps {
   title: string;
@@ -13,6 +14,7 @@ interface LinerCalculatorProps {
   onIncludeOverlapChange: (checked: boolean) => void;
   overlapAmount: number;
   onOverlapAmountChange: (amount: number) => void;
+  tooltip?: React.ReactNode;
 }
 
 export default function LinerCalculator({
@@ -25,6 +27,7 @@ export default function LinerCalculator({
   onIncludeOverlapChange,
   overlapAmount,
   onOverlapAmountChange,
+  tooltip,
 }: LinerCalculatorProps): React.ReactNode {
   
   const precision = (unit === 'm' || unit === 'ft') ? 2 : 1;
@@ -45,7 +48,14 @@ export default function LinerCalculator({
 
   return (
     <div className="bg-slate-800 rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-white border-b border-slate-700 pb-4 mb-6">{title}</h2>
+        <div className="flex items-center gap-3 border-b border-slate-700 pb-4 mb-6">
+            <h2 className="text-xl font-semibold text-white">{title}</h2>
+            {tooltip && (
+                <InfoPopup>
+                    {tooltip}
+                </InfoPopup>
+            )}
+        </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <label htmlFor={`${uniqueId}-includeOverlap`} className="flex-shrink-0 flex items-center gap-3 text-base font-medium text-slate-200 cursor-pointer">

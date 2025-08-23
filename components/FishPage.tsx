@@ -29,8 +29,8 @@ export default function FishPage({ minStock, maxStock, adjustmentMessage, design
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400 group-hover:text-slate-200 transition-colors duration-200 cursor-help" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-900 ring-1 ring-slate-600 rounded-lg shadow-lg text-sm text-center text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
-                This stocking rate is calculated based on the tank volume and biofilter size you have configured.
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-slate-900 ring-1 ring-slate-600 rounded-lg shadow-lg text-sm text-center text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+                A general guideline is to start with 80–100 fingerlings, each weighing around 15 grams (0.53 ounces), per 1000 liters (264 gallons) of water. As fish grow, larger individuals should be removed through culling or harvesting to maintain optimal density and ensure overall well-being. The target harvest size for these fish is typically 250–300 grams (0.55–0.66 lbs).
                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-slate-600"></div>
               </div>
             </div>

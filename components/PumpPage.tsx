@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { Unit } from '../types';
 import StatCard from './StatCard';
 import InputSlider from './InputSlider';
+import InfoPopup from './InfoPopup';
 
 interface PumpPageProps {
   lphMin: number;
@@ -29,7 +30,12 @@ export default function PumpPage({ lphMin, lphMax, biofilterHeight, unit, headHe
     <div className="px-4">
       <main className="max-w-4xl mx-auto flex flex-col gap-8">
         <div className="bg-slate-800 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-white border-b border-slate-700 pb-4 mb-6">Pump Requirements</h2>
+          <div className="flex items-center gap-3 border-b border-slate-700 pb-4 mb-6">
+            <h2 className="text-xl font-semibold text-white">Pump Requirements</h2>
+            <InfoPopup>
+              A pump should be capable of emptying the fish tank in one hour at the rated head height. Using multiple smaller pumps instead of a single large one can enhance system reliability by providing redundancy and better control over solids removal. The pump intake should be positioned slightly above the fish tank floor (0.5–1 cm) to prevent obstruction from solid waste buildup. For larger systems, multiple smaller pumps should be distributed along long tanks or canals to improve water distribution. For future scalability, it is advisable to select a pump with extra capacity.
+            </InfoPopup>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-slate-900 rounded-lg p-6 border-l-4 border-cyan-400">
               <div className="flex items-center gap-3 mb-3">

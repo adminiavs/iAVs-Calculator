@@ -60,6 +60,7 @@ export default function LinerPage(props: LinerPageProps): React.ReactNode {
           onIncludeOverlapChange={props.onIncludeFishTankLinerOverlapChange}
           overlapAmount={props.fishTankLinerOverlapAmount}
           onOverlapAmountChange={props.onFishTankLinerOverlapAmountChange}
+          tooltip="Smooth Liner Installation: Liners should be installed without folds or creases, especially in corners, as these can trap debris and lead to water quality issues."
         />
         <LinerCalculator
           title="BioFilter Liner"
