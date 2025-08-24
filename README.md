@@ -315,14 +315,29 @@ The calculator implements a comprehensive warning system with three levels:
 
 ### Core Calculation Formulas
 
-#### Tank Volume Calculation
+#### Tank Volume Calculation (Standard Parabolic Volume Method)
 ```typescript
 // Top surface area (rounded rectangle)
-topSurfaceArea = (length × width) - (4 × radius²) + (π × radius²)
+// Formula: Area = (Length × Width) - (4 - π) × Radius²
+topSurfaceArea = (length × width) - (4 - π) × radius²
 
-// Volume with catenary curve correction
-curveCorrectionFactor = 1 - (curveDepth / 100) × (1 - 0.75)
-volume = topSurfaceArea × depth × curveCorrectionFactor
+// Standard Parabolic Volume Calculation
+// 1. Calculate cross-sectional area components:
+//    - Rectangular area = Width × Straight Wall Height
+//    - Parabolic area = (2/3) × Width × Curved Bottom Depth
+// 2. Calculate average depth from cross-section
+// 3. Total Volume = Top Surface Area × Average Depth
+
+curvedBottomDepthRatio = curveDepth / 100  // Convert percentage to decimal
+curvedBottomDepth = depth × curvedBottomDepthRatio
+straightWallHeight = depth - curvedBottomDepth
+
+rectangularArea = width × straightWallHeight
+parabolicArea = (2/3) × width × curvedBottomDepth
+totalCrossSectionalArea = rectangularArea + parabolicArea
+
+averageDepth = totalCrossSectionalArea / width
+volume = topSurfaceArea × averageDepth
 ```
 
 #### Biofilter Calculations
@@ -330,8 +345,8 @@ volume = topSurfaceArea × depth × curveCorrectionFactor
 // Surface area
 surfaceArea = width × length
 
-// Depth calculations
-slopeDepthIncrease = length × (slope / 100)
+// Depth calculations with slope
+slopeDepthIncrease = length × (slope / 100)  // slope in cm/m
 deepDepth = shallowDepth + slopeDepthIncrease
 
 // Sand volume (average depth)
@@ -340,6 +355,9 @@ sandVolume = surfaceArea × averageSandDepth
 
 // Sand weight (1600 kg/m³ density)
 sandWeight = sandVolume × 1.6
+
+// Total container height (for liner calculations)
+totalContainerHeight = deepDepth + freeboard
 ```
 
 #### Fish Stocking Calculations
@@ -347,7 +365,7 @@ sandWeight = sandVolume × 1.6
 // Base stocking rate
 baseStockingRate = 80-100 fingerlings per 1000 liters
 
-// Biofilter adjustment factor
+// Biofilter adjustment factor (with 2% tolerance)
 if (biofilterRatio < 0.98) {
   biofilterAdjustmentFactor = Math.pow(biofilterRatio, 1.5)
 } else if (biofilterRatio > 1.0) {
@@ -360,12 +378,12 @@ if (biofilterRatio < 0.98) {
   biofilterAdjustmentFactor = 1.0
 }
 
-// Design Efficiency Factor (NEW)
+// Design Efficiency Factor
 // Bottom Profile Efficiency
 if (curvePercent >= 60) {
-  bottomProfileEfficiency = 1.0  // Optimal catenary (widened range)
+  bottomProfileEfficiency = 1.0  // Optimal catenary
 } else if (curvePercent <= 25) {
-  bottomProfileEfficiency = 0.8  // 20% penalty for flat bottom (reduced from 40%)
+  bottomProfileEfficiency = 0.8  // 20% penalty for flat bottom
 } else {
   // Linear interpolation between 25% and 60%
   bottomProfileEfficiency = 0.8 + ((curvePercent - 25) * (0.2 / 35))
@@ -389,7 +407,7 @@ finalStockingRate = baseStockingRate × biofilterAdjustmentFactor × totalDesign
 ```
 
 **Design Efficiency Factor Explanation:**
-The calculator now includes a Design Efficiency Factor that penalizes tank designs with poor hydraulic characteristics:
+The calculator includes a Design Efficiency Factor that penalizes tank designs with poor hydraulic characteristics:
 
 - **Bottom Profile**: Flat bottoms (≤25% catenary) receive a 20% penalty due to poor solids removal
 - **Corner Radius**: Sharp corners (<5% of smallest dimension) receive a 30% penalty due to dead zones
@@ -397,34 +415,36 @@ The calculator now includes a Design Efficiency Factor that penalizes tank desig
 
 This prevents users from gaining higher fish recommendations by designing inefficient tanks that simply increase raw volume.
 
-#### Liner Calculations (Updated for Rounded Corners and Curved Profiles)
+#### Liner Calculations (Accurate for Rounded Corners and Curved Profiles)
 ```typescript
 // Tank liner with rounded corners and curved bottom
-baseLength = length + (2 × depth)
-baseWidth = width + (2 × depth)
+baseLength = length + (2 × totalDepth)  // totalDepth = depth + freeboard
+baseWidth = width + (2 × totalDepth)
 
 // Corner extra material (4 corners)
 cornerExtra = 4 × (π/2 × radius)
 
 // Curved bottom extra material
-curveExtraFactor = 1 + (curveDepth / 100) × 0.15
+curveExtraFactor = 1 + (curveDepth / 100) × 0.15  // Up to 15% extra for full curve
 curveExtra = depth × (curveExtraFactor - 1)
 
 // Total extra material
 totalExtra = cornerExtra + curveExtra + overlap
 
 // Distribute proportionally
-lengthExtra = totalExtra × (length / (length + width))
-widthExtra = totalExtra × (width / (length + width))
+lengthRatio = length / (length + width)
+widthRatio = width / (length + width)
+lengthExtra = totalExtra × lengthRatio
+widthExtra = totalExtra × widthRatio
 
 finalLength = baseLength + lengthExtra
 finalWidth = baseWidth + widthExtra
 
 // Biofilter liner with sloped bottom
-baseLength = length + (2 × totalHeight)
-baseWidth = width + (2 × totalHeight)
+baseLength = length + (2 × totalContainerHeight)
+baseWidth = width + (2 × totalContainerHeight)
 
-// Slope extra material
+// Slope extra material (hypotenuse calculation)
 slopeDepthIncrease = length × (slope / 100)
 slopeExtra = √(length² + slopeDepthIncrease²) - length
 
@@ -438,9 +458,10 @@ finalWidth = baseWidth + widthExtra
 
 #### Pump Specifications
 ```typescript
-// Flow rate range
-minFlowRate = tankVolume × 0.5  // 50% turnover per hour
-maxFlowRate = tankVolume × 2.0  // 200% turnover per hour
+// Flow rate range (25-30% volume turnover in 15 minutes)
+// Converted to hourly rates
+minFlowRate = tankVolume × 1.0  // 100% turnover per hour
+maxFlowRate = tankVolume × 1.2  // 120% turnover per hour
 
 // Head height
 headHeight = biofilterHeight + elevationDifference
@@ -457,6 +478,9 @@ const conversions = {
   in: { toMM: (v) => v * 25.4, fromMM: (v) => v / 25.4 },
   ft: { toMM: (v) => v * 304.8, fromMM: (v) => v / 304.8 }
 }
+
+// Volume conversions for display
+const LITERS_PER_GALLON = 3.78541;
 ```
 
 ### Validation Rules
@@ -467,6 +491,43 @@ const conversions = {
 4. **Corner Radius Limit**: Cannot exceed half of shortest side
 5. **Aspect Ratio Limits**: 1.2:1 to 3.0:1 for optimal design
 6. **Depth-to-Side Ratio**: 0.75:1 to 1.5:1 for structural stability
+7. **Curve Depth Range**: 0-100% (0 = flat bottom, 100 = deep catenary)
+8. **Slope Range**: 0-10 cm/m for biofilter design
+9. **Freeboard Range**: 0-300mm for tank and biofilter
+10. **Overlap Allowance**: 0-500mm for liner installations
+
+### Mathematical Foundations
+
+#### Parabolic Volume Calculation
+The tank volume calculation uses the **Standard Parabolic Volume Method**, which accurately accounts for the catenary curve bottom:
+
+1. **Cross-Sectional Analysis**: The tank is analyzed as a series of cross-sections
+2. **Rectangular Component**: Straight wall sections contribute rectangular area
+3. **Parabolic Component**: Curved bottom sections contribute parabolic area using the (2/3) rule
+4. **Average Depth**: The effective depth is calculated from the total cross-sectional area
+5. **Volume Integration**: Total volume = Surface area × Average depth
+
+This method provides more accurate results than simple geometric approximations and accounts for the complex geometry of rounded corners and curved bottoms.
+
+#### Biofilter Slope Calculations
+The biofilter uses a linear slope calculation:
+- **Slope Definition**: Rise over run in cm/m
+- **Depth Increase**: `slopeDepthIncrease = length × (slope / 100)`
+- **Deep End Depth**: `deepDepth = shallowDepth + slopeDepthIncrease`
+- **Average Depth**: `(shallowDepth + deepDepth) / 2`
+
+#### Design Efficiency Factors
+The calculator implements sophisticated efficiency factors that penalize poor hydraulic designs:
+
+1. **Bottom Profile Efficiency**: Based on catenary curve depth
+   - Optimal (60-100%): No penalty
+   - Sub-optimal (25-60%): Linear interpolation
+   - Poor (0-25%): 20% penalty
+
+2. **Corner Radius Efficiency**: Based on corner radius relative to smallest dimension
+   - Optimal (≥25% of SHD): No penalty
+   - Sub-optimal (5-25% of SHD): Linear interpolation
+   - Poor (<5% of SHD): 30% penalty
 
 ### Performance Considerations
 
@@ -474,6 +535,7 @@ const conversions = {
 - **Precision**: Internal calculations use millimeters, display uses user-selected units
 - **Validation**: Comprehensive checks prevent physically impossible configurations
 - **Visual Feedback**: Color-coded indicators provide immediate design guidance
+- **Memory Efficiency**: Calculations use memoization to prevent redundant computations
 
 ## Contributing
 
